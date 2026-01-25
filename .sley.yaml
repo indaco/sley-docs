@@ -1,0 +1,28 @@
+# sley configuration file
+# Documentation: https://github.com/indaco/sley
+
+# Enabled plugins:
+#   - tag-manager
+#   - dependency-check
+
+path: .version
+plugins:
+  # Analyzes conventional commits to suggest version bumps
+  commit-parser: false
+  # Automatically creates git tags after version changes
+  tag-manager:
+    enabled: true
+  # Syncs version to package.json and other dependency files
+  dependency-check:
+    enabled: true
+    auto-sync: true
+    files:
+      - path: package.json
+        field: version
+        format: json
+
+# Extensions for custom automation
+extensions:
+  - name: sley-version-sync
+    path: ./sley-extensions/sley-version-sync
+    enabled: true

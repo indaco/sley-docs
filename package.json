@@ -1,0 +1,35 @@
+{
+  "name": "sley-docs",
+  "version": "0.8.3",
+  "private": true,
+  "description": "Docs website for sley cli",
+  "homepage": "https://sley.indaco.dev",
+  "bugs": {
+    "url": "https://github.com/indaco/sley/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/indaco/sley.git"
+  },
+  "license": "MIT",
+  "author": "indaco <github@mircoveltri.me>",
+  "type": "module",
+  "scripts": {
+    "clean": "rimraf .vitepress/cache",
+    "clean:all": "rimraf .vitepress/dist .vitepress/cache",
+    "docs:build": "vitepress build",
+    "docs:dev": "vitepress dev",
+    "docs:preview": "vitepress preview",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.9",
+    "prettier": "^3.8.1",
+    "prettier-plugin-packagejson": "^3.0.0",
+    "rimraf": "^6.1.2",
+    "vitepress": "2.0.0-alpha.15",
+    "vue": "^3.5.27"
+  },
+  "packageManager": "pnpm@10.28.1"
+}

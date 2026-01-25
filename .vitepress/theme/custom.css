@@ -1,0 +1,484 @@
+/**
+ * Sley VitePress Theme
+ * Based on the sley logo color palette:
+ * - Primary: Teal gradient (#0d9488 → #14b8a6)
+ * - Background: Slate (#0f172a)
+ */
+
+/* ============================================
+   CSS Custom Properties (Color Palette)
+   ============================================ */
+:root {
+  /* Brand Colors */
+  --sley-teal-600: #0d9488;
+  --sley-teal-500: #14b8a6;
+  --sley-teal-400: #2dd4bf;
+  --sley-teal-300: #5eead4;
+  --sley-slate-900: #0f172a;
+  --sley-slate-800: #1e293b;
+  --sley-slate-700: #334155;
+  --sley-slate-600: #475569;
+  --sley-slate-500: #64748b;
+  --sley-slate-400: #94a3b8;
+  --sley-slate-300: #cbd5e1;
+  --sley-slate-200: #e2e8f0;
+  --sley-slate-100: #f1f5f9;
+  --sley-slate-50: #f8fafc;
+
+  /* VitePress Theme Overrides - Light Mode */
+  --vp-c-brand-1: var(--sley-teal-600);
+  --vp-c-brand-2: var(--sley-teal-500);
+  --vp-c-brand-3: var(--sley-teal-400);
+  --vp-c-brand-soft: rgba(20, 184, 166, 0.14);
+
+  /* Accent/Tip Color */
+  --vp-c-tip-1: var(--sley-teal-600);
+  --vp-c-tip-2: var(--sley-teal-500);
+  --vp-c-tip-3: var(--sley-teal-400);
+  --vp-c-tip-soft: rgba(20, 184, 166, 0.14);
+
+  /* Background */
+  --vp-c-bg: var(--sley-slate-50);
+  --vp-c-bg-alt: var(--sley-slate-100);
+  --vp-c-bg-elv: var(--sley-slate-50);
+  --vp-c-bg-soft: var(--sley-slate-100);
+
+  /* Text */
+  --vp-c-text-1: var(--sley-slate-900);
+  --vp-c-text-2: var(--sley-slate-700);
+  --vp-c-text-3: var(--sley-slate-500);
+
+  /* Borders */
+  --vp-c-border: var(--sley-slate-200);
+  --vp-c-divider: var(--sley-slate-200);
+  --vp-c-gutter: var(--sley-slate-100);
+
+  /* Code */
+  --vp-code-color: var(--sley-teal-600);
+  --vp-code-bg: rgba(13, 148, 136, 0.08);
+
+  /* Code Block */
+  --vp-code-block-bg: var(--sley-slate-100);
+  --vp-code-block-color: var(--sley-slate-800);
+  --vp-code-block-divider-color: var(--sley-slate-300);
+
+  /* Sidebar */
+  --vp-sidebar-bg-color: var(--sley-slate-50);
+
+  /* Custom Badge Colors */
+  --vp-badge-info-border: transparent;
+  --vp-badge-info-text: var(--sley-slate-600);
+  --vp-badge-info-bg: var(--sley-slate-200);
+
+  --vp-badge-tip-border: transparent;
+  --vp-badge-tip-text: var(--sley-teal-600);
+  --vp-badge-tip-bg: rgba(20, 184, 166, 0.14);
+
+  --vp-badge-danger-border: transparent;
+  --vp-badge-danger-text: #9333ea;
+  --vp-badge-danger-bg: rgba(147, 51, 234, 0.14);
+
+  /* Home Hero */
+  --vp-home-hero-name-color: transparent;
+  --vp-home-hero-name-background: linear-gradient(
+    135deg,
+    var(--sley-teal-600) 0%,
+    var(--sley-teal-400) 100%
+  );
+  --vp-home-hero-image-background-image: linear-gradient(
+    135deg,
+    rgba(20, 184, 166, 0.3) 0%,
+    rgba(13, 148, 136, 0.3) 100%
+  );
+  --vp-home-hero-image-filter: blur(44px);
+
+  /* Button */
+  --vp-button-brand-border: transparent;
+  --vp-button-brand-text: #ffffff;
+  --vp-button-brand-bg: var(--sley-teal-600);
+  --vp-button-brand-hover-border: transparent;
+  --vp-button-brand-hover-text: #ffffff;
+  --vp-button-brand-hover-bg: var(--sley-teal-500);
+  --vp-button-brand-active-border: transparent;
+  --vp-button-brand-active-text: #ffffff;
+  --vp-button-brand-active-bg: var(--sley-teal-600);
+
+  /* Alt Button */
+  --vp-button-alt-border: var(--sley-slate-300);
+  --vp-button-alt-text: var(--sley-slate-700);
+  --vp-button-alt-bg: var(--sley-slate-100);
+  --vp-button-alt-hover-border: var(--sley-slate-400);
+  --vp-button-alt-hover-text: var(--sley-slate-800);
+  --vp-button-alt-hover-bg: var(--sley-slate-200);
+
+  /* Nav */
+  --vp-nav-logo-height: 28px;
+}
+
+/* ============================================
+   Dark Mode Overrides
+   ============================================ */
+.dark {
+  --vp-c-brand-1: var(--sley-teal-400);
+  --vp-c-brand-2: var(--sley-teal-500);
+  --vp-c-brand-3: var(--sley-teal-600);
+  --vp-c-brand-soft: rgba(45, 212, 191, 0.16);
+
+  --vp-c-tip-1: var(--sley-teal-400);
+  --vp-c-tip-2: var(--sley-teal-500);
+  --vp-c-tip-3: var(--sley-teal-600);
+  --vp-c-tip-soft: rgba(45, 212, 191, 0.16);
+
+  --vp-c-bg: var(--sley-slate-900);
+  --vp-c-bg-alt: var(--sley-slate-800);
+  --vp-c-bg-elv: var(--sley-slate-800);
+  --vp-c-bg-soft: var(--sley-slate-800);
+
+  --vp-c-text-1: var(--sley-slate-100);
+  --vp-c-text-2: var(--sley-slate-300);
+  --vp-c-text-3: var(--sley-slate-400);
+
+  --vp-c-border: var(--sley-slate-700);
+  --vp-c-divider: var(--sley-slate-700);
+  --vp-c-gutter: var(--sley-slate-800);
+
+  --vp-code-color: var(--sley-teal-400);
+  --vp-code-bg: rgba(45, 212, 191, 0.1);
+
+  --vp-code-block-bg: #0a0f1a;
+  --vp-code-block-color: var(--sley-slate-200);
+  --vp-code-block-divider-color: var(--sley-slate-800);
+
+  --vp-sidebar-bg-color: var(--sley-slate-900);
+
+  --vp-badge-info-border: transparent;
+  --vp-badge-info-text: var(--sley-slate-300);
+  --vp-badge-info-bg: var(--sley-slate-700);
+
+  --vp-badge-tip-border: transparent;
+  --vp-badge-tip-text: var(--sley-teal-400);
+  --vp-badge-tip-bg: rgba(45, 212, 191, 0.16);
+
+  --vp-badge-danger-border: transparent;
+  --vp-badge-danger-text: #c084fc;
+  --vp-badge-danger-bg: rgba(192, 132, 252, 0.16);
+
+  --vp-home-hero-name-background: linear-gradient(
+    135deg,
+    var(--sley-teal-400) 0%,
+    var(--sley-teal-300) 100%
+  );
+  --vp-home-hero-image-background-image: linear-gradient(
+    135deg,
+    rgba(45, 212, 191, 0.4) 0%,
+    rgba(20, 184, 166, 0.4) 100%
+  );
+
+  --vp-button-brand-bg: var(--sley-teal-500);
+  --vp-button-brand-hover-bg: var(--sley-teal-400);
+  --vp-button-brand-active-bg: var(--sley-teal-500);
+
+  --vp-button-alt-border: var(--sley-slate-600);
+  --vp-button-alt-text: var(--sley-slate-200);
+  --vp-button-alt-bg: var(--sley-slate-800);
+  --vp-button-alt-hover-border: var(--sley-slate-500);
+  --vp-button-alt-hover-text: var(--sley-slate-100);
+  --vp-button-alt-hover-bg: var(--sley-slate-700);
+}
+
+/* ============================================
+   Custom Components & Enhancements
+   ============================================ */
+
+/* Links */
+.vp-doc a {
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.vp-doc a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* Images (CLI screenshots) */
+.vp-doc img {
+  border-radius: 6px;
+  border: 1px solid var(--vp-c-border);
+}
+
+.dark .vp-doc img {
+  border-color: var(--sley-slate-700);
+}
+
+/* Inline Code */
+.vp-doc :not(pre) > code {
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 0.9em;
+  font-weight: 500;
+}
+
+/* Code Blocks */
+.vp-doc div[class*='language-'] {
+  border-radius: 8px;
+  border: 1px solid var(--vp-c-border);
+}
+
+.dark .vp-doc div[class*='language-'] {
+  border-color: var(--sley-slate-700);
+}
+
+/* Code Block Title/Filename */
+.vp-doc div[class*='language-'] > span.lang {
+  color: var(--sley-slate-400);
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Custom Containers (Note, Tip, Warning, etc.) */
+.vp-doc .custom-block {
+  border-radius: 8px;
+  border-left-width: 4px;
+}
+
+.vp-doc .custom-block.tip {
+  border-left-color: var(--sley-teal-500);
+}
+
+.vp-doc .custom-block.tip .custom-block-title {
+  color: var(--sley-teal-600);
+}
+
+.dark .vp-doc .custom-block.tip .custom-block-title {
+  color: var(--sley-teal-400);
+}
+
+/* Tables */
+.vp-doc table {
+  display: table;
+  width: 100% !important;
+  table-layout: auto;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--vp-c-border);
+}
+
+.vp-doc th {
+  background-color: var(--sley-slate-100);
+  font-weight: 600;
+}
+
+.dark .vp-doc th {
+  background-color: var(--sley-slate-800);
+}
+
+.vp-doc tr:nth-child(even) {
+  background-color: var(--sley-slate-50);
+}
+
+.dark .vp-doc tr:nth-child(even) {
+  background-color: rgba(30, 41, 59, 0.5);
+}
+
+/* Nav & Sidebar Active States */
+.VPNavBarMenuLink.active,
+.VPNavBarMenuLink:hover {
+  color: var(--sley-teal-600) !important;
+}
+
+.dark .VPNavBarMenuLink.active,
+.dark .VPNavBarMenuLink:hover {
+  color: var(--sley-teal-400) !important;
+}
+
+.VPSidebarItem.is-active > .item > .link > .text {
+  color: var(--sley-teal-600) !important;
+}
+
+.dark .VPSidebarItem.is-active > .item > .link > .text {
+  color: var(--sley-teal-400) !important;
+}
+
+/* Sidebar Link Hover */
+.VPSidebarItem .link:hover .text {
+  color: var(--sley-teal-600);
+}
+
+.dark .VPSidebarItem .link:hover .text {
+  color: var(--sley-teal-400);
+}
+
+/* Search Highlight */
+.DocSearch-Hit--Result mark {
+  background-color: rgba(20, 184, 166, 0.3);
+  color: inherit;
+}
+
+/* Scrollbar (for WebKit browsers) */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--vp-c-bg-alt);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--sley-slate-400);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--sley-slate-500);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: var(--sley-slate-600);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: var(--sley-slate-500);
+}
+
+/* Focus States for Accessibility */
+:focus-visible {
+  outline: 2px solid var(--sley-teal-500);
+  outline-offset: 2px;
+}
+
+/* Hero Section Enhancements */
+.VPHero .image-container .image-src {
+  max-width: 200px;
+  max-height: 200px;
+}
+
+.VPHero .image-bg {
+  width: 200px !important;
+  height: 200px !important;
+}
+
+.VPHero .name {
+  font-weight: 800;
+}
+
+.VPHero .text {
+  color: var(--sley-slate-600);
+}
+
+.dark .VPHero .text {
+  color: var(--sley-slate-400);
+}
+
+.VPHero .tagline {
+  color: var(--sley-slate-500);
+}
+
+.dark .VPHero .tagline {
+  color: var(--sley-slate-400);
+}
+
+/* Feature Cards on Home Page */
+.VPFeature {
+  border-radius: 12px;
+  border: 1px solid var(--vp-c-border);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.VPFeature:hover {
+  border-color: var(--sley-teal-500);
+  box-shadow: 0 4px 16px rgba(20, 184, 166, 0.1);
+}
+
+.dark .VPFeature:hover {
+  box-shadow: 0 4px 16px rgba(20, 184, 166, 0.15);
+}
+
+.VPFeature .title {
+  color: var(--sley-slate-800);
+}
+
+.dark .VPFeature .title {
+  color: var(--sley-slate-100);
+}
+
+.VPFeature .details {
+  color: var(--sley-slate-600);
+}
+
+.dark .VPFeature .details {
+  color: var(--sley-slate-400);
+}
+
+/* Footer */
+.VPFooter {
+  border-top: 1px solid var(--vp-c-border);
+}
+
+/* Social Links */
+.VPSocialLink:hover {
+  color: var(--sley-teal-500) !important;
+}
+
+/* Breadcrumbs / Edit Link */
+.VPDocFooter .edit-link-button {
+  color: var(--sley-teal-600);
+}
+
+.VPDocFooter .edit-link-button:hover {
+  color: var(--sley-teal-500);
+}
+
+.dark .VPDocFooter .edit-link-button {
+  color: var(--sley-teal-400);
+}
+
+.dark .VPDocFooter .edit-link-button:hover {
+  color: var(--sley-teal-300);
+}
+
+/* Previous / Next Navigation */
+.VPDocFooter .pager-link:hover {
+  border-color: var(--sley-teal-500);
+}
+
+.VPDocFooter .pager-link:hover .title {
+  color: var(--sley-teal-600);
+}
+
+.dark .VPDocFooter .pager-link:hover .title {
+  color: var(--sley-teal-400);
+}
+
+/* Smooth Transitions */
+.VPNavBar,
+.VPSidebar,
+.VPContent {
+  transition: background-color 0.3s ease;
+}
+
+/* Print Styles */
+@media print {
+  .VPNav,
+  .VPSidebar,
+  .VPLocalNav,
+  .VPDocFooter {
+    display: none !important;
+  }
+
+  .VPContent {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .vp-doc a::after {
+    content: ' (' attr(href) ')';
+    font-size: 0.8em;
+    color: var(--sley-slate-500);
+  }
+}
