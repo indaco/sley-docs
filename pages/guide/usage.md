@@ -272,6 +272,26 @@ sley changelog merge        # Merge versioned changelogs into CHANGELOG.md
 
 See [Changelog Generator](/plugins/changelog-generator) for automatic changelog generation from commits.
 
+## Auto-discover version sources
+
+If your project already has versions in manifest files (package.json, Cargo.toml, pyproject.toml, etc.), `discover` provides an interactive workflow to scan and initialize:
+
+```bash
+sley discover
+```
+
+The command will:
+
+1. Scan for `.version` files and manifest files in your project tree
+2. Display what it found
+3. Ask if you want to initialize
+4. Let you select which files to keep in sync
+5. Create `.version` and `.sley.yaml` with `dependency-check` pre-configured
+
+Useful for migrating existing projects or setting up monorepos with multiple version sources.
+
+See [CLI Reference: discover](/reference/cli#discover-scan) for all options.
+
 ## Rolling back a version change
 
 If you need to undo a version bump:

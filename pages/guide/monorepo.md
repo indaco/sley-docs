@@ -43,13 +43,29 @@ sley bump patch --module api
 sley bump patch
 ```
 
-### List Discovered Modules
+### Discover Modules
+
+The `discover` command recursively scans your project tree to find all `.version` files and manifest files:
 
 ```bash
-sley modules list
-# api     ./services/api/.version    1.2.3
-# web     ./apps/web/.version        2.0.0
-# shared  ./packages/shared/.version 0.5.1
+sley discover
+# Discovery Results
+# Project Type: Multi Module
+#
+# Version Files (.version):
+#   - api (1.2.3) - services/api/.version
+#   - web (2.0.0) - apps/web/.version
+#   - shared (0.5.1) - packages/shared/.version
+#
+# Manifest Files:
+#   - package.json (2.0.0)
+#   - services/api/Cargo.toml (1.2.3)
+```
+
+By default, discovery searches up to 3 levels deep for manifest files. For deeply nested structures, increase the search depth:
+
+```bash
+sley discover --depth 5
 ```
 
 ## Detection Hierarchy
@@ -102,7 +118,8 @@ workspace:
   discovery:
     enabled: true
     recursive: true
-    max_depth: 10
+    module_max_depth: 10 # Max depth for .version file discovery
+    manifest_max_depth: 3 # Max depth for manifest file discovery
     exclude:
       - "testdata"
       - "examples"
@@ -181,16 +198,29 @@ sley show --all --format table   # ASCII table
 
 See [CI/CD Integration](/guide/ci-cd) for full examples with GitHub Actions and GitLab CI.
 
-## Module Commands
+## Discovery Command
 
 ```bash
-sley modules list              # List all modules
-sley modules list --verbose    # Detailed output
-sley modules list --format json
-sley modules discover          # Test discovery settings
+sley discover                  # Discover all version sources (searches 3 levels deep)
+sley discover --depth 5        # Increase search depth for deeply nested projects
+sley discover --format json    # JSON output for CI/CD
+sley discover --quiet          # Summary only
+sley discover --no-interactive # Skip prompts
 ```
 
-For complete flag documentation, see [CLI Reference](/reference/cli#bump).
+The `discover` command recursively scans the entire project tree for both `.version` files and manifest files (package.json, Cargo.toml, etc.). By default, it searches up to 3 directory levels for manifest files, which is suitable for most projects.
+
+**Auto-Initialization:**
+
+When no `.sley.yaml` exists, `discover` streamlines project setup by:
+
+1. Creating `.sley.yaml` with default plugins (`commit-parser`, `tag-manager`)
+2. If sync candidates are found (manifests or module `.version` files), also enabling `dependency-check` plugin with pre-configured file paths
+3. Creating `.version` file if it doesn't exist
+
+This eliminates the need to run `sley init` separately after discovery.
+
+For complete flag documentation, see [CLI Reference](/reference/cli#discover).
 
 ## Common errors
 
@@ -202,6 +232,9 @@ For complete flag documentation, see [CLI Reference](/reference/cli#bump).
 ```bash
 # Check if .version files exist
 find . -name ".version" -type f
+
+# Run discovery to see what sley detects
+sley discover
 
 # If files exist but not detected, check .sleyignore
 cat .sleyignore
@@ -254,12 +287,12 @@ For more troubleshooting help, see the [Troubleshooting Guide](/guide/troublesho
 
 ## Troubleshooting
 
-| Issue                        | Solution                                           |
-| ---------------------------- | -------------------------------------------------- |
-| No modules found             | Ensure `.version` files exist in subdirectories    |
-| Module not detected          | Check `.sleyignore` and exclude patterns           |
-| Interactive mode not working | Use `--all` or `--module` flags in CI/CD           |
-| Permission denied            | Ensure `.version` files are writable (`chmod 644`) |
+| Issue                        | Solution                                                              |
+| ---------------------------- | --------------------------------------------------------------------- |
+| No modules found             | Run `sley discover` to check detection, ensure `.version` files exist |
+| Module not detected          | Check `.sleyignore` and exclude patterns                              |
+| Interactive mode not working | Use `--all` or `--module` flags in CI/CD                              |
+| Permission denied            | Ensure `.version` files are writable (`chmod 644`)                    |
 
 ## What's Next?
 

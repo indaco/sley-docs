@@ -25,10 +25,10 @@ const features: Feature[] = [
       'Manage multiple .version files across a monorepo with pattern matching and bulk operations.',
   },
   {
-    icon: 'prerelease',
-    title: 'Pre-release Support',
+    icon: 'discover',
+    title: 'Smart Discovery',
     details:
-      'Full support for alpha, beta, and rc versions with auto-increment capabilities.',
+      'Auto-detect version sources from package.json, Cargo.toml, pyproject.toml, and suggest sync configuration.',
   },
   {
     icon: 'policy',
@@ -111,9 +111,9 @@ const features: Feature[] = [
               <line x1="12" y1="11" x2="12" y2="17" />
               <line x1="9" y1="14" x2="15" y2="14" />
             </svg>
-            <!-- Pre-release icon -->
+            <!-- Discover icon -->
             <svg
-              v-else-if="feature.icon === 'prerelease'"
+              v-else-if="feature.icon === 'discover'"
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
               fill="none"
@@ -122,11 +122,10 @@ const features: Feature[] = [
               stroke-linecap="round"
               stroke-linejoin="round"
             >
-              <polyline points="23 4 23 10 17 10" />
-              <polyline points="1 20 1 14 7 14" />
-              <path
-                d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"
-              />
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              <line x1="11" y1="8" x2="11" y2="14" />
+              <line x1="8" y1="11" x2="14" y2="11" />
             </svg>
             <!-- Policy icon -->
             <svg
