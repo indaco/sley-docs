@@ -1,6 +1,6 @@
 ---
-title: "Tutorial: Your First sley Project"
-description: "Step-by-step tutorial to set up version management with sley, from initialization to your first release with git tags and changelog"
+title: "From Init to Tag"
+description: "Step-by-step tutorial to set up version management with sley, from initialization to version bumps, git tags, and changelog generation"
 head:
   - - meta
     - name: keywords
