@@ -18,7 +18,10 @@ This page covers common issues when working with monorepos and multi-module proj
 **Solutions**:
 
 ```bash
-# Check for .version files
+# Run discovery to see what sley detects
+sley discover
+
+# Check for .version files manually
 find . -name ".version"
 
 # Initialize modules
@@ -30,11 +33,8 @@ workspace:
   discovery:
     enabled: true
     recursive: true
-    max_depth: 10
-
-# Test discovery
-sley modules discover
-sley modules list
+    module_max_depth: 10
+    manifest_max_depth: 3
 ```
 
 ## `Error: module not detected`
@@ -98,7 +98,7 @@ sley bump patch --module web
 
 # Option 4: Check for file conflicts
 # Ensure modules don't share .version files or modify same files
-sley modules list --verbose
+sley discover --format json
 ```
 
 ## `Error: module versions out of sync`
@@ -111,11 +111,18 @@ sley modules list --verbose
 # Check current versions
 sley show --all
 
+# Or use discover for a comprehensive view
+sley discover
+
 # Synchronize all modules to the same version
 sley set 1.0.0 --all
 
 # Or bump all modules together
 sley bump patch --all
+
+# Consider enabling dependency-check to keep versions in sync automatically
+# Run: sley discover
+# It will suggest dependency-check configuration for your project
 ```
 
 ## See Also

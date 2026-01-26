@@ -50,6 +50,55 @@ sley init [options]
 | `--migrate`   | Detect version from existing files (package.json, etc.)   |
 | `--force`     | Overwrite existing .sley.yaml                             |
 
+### `discover` / `scan`
+
+Scan the project tree for version sources and suggest configuration.
+
+```bash
+sley discover [options]
+```
+
+Recursively scans the project tree for:
+
+- `.version` files (sley modules in subdirectories)
+- Manifest files (package.json, Cargo.toml, pyproject.toml, Chart.yaml, etc.)
+
+The command now performs a deep scan of the entire project structure up to the specified depth limit, making it ideal for discovering all version sources in complex monorepos.
+
+| Option             | Description                                        |
+| ------------------ | -------------------------------------------------- |
+| `--depth`, `-d`    | Maximum directory depth for discovery (default: 3) |
+| `--format`, `-f`   | Output format: text, json, table                   |
+| `--quiet`, `-q`    | Only show summary                                  |
+| `--no-interactive` | Skip interactive prompts                           |
+
+**Examples**:
+
+```bash
+# Discover all version sources (searches up to 3 levels deep by default)
+sley discover
+
+# Increase search depth for deeply nested structures
+sley discover --depth 5
+
+# JSON output for CI/CD
+sley discover --format json
+
+# Non-interactive mode
+sley discover --no-interactive
+```
+
+**Auto-Initialization Workflow**:
+
+When no `.sley.yaml` exists, `discover` offers to initialize your project automatically:
+
+1. Creates `.sley.yaml` with sensible defaults
+2. Enables `commit-parser` and `tag-manager` plugins
+3. If manifest files or module `.version` files are found, also enables `dependency-check` plugin pre-configured with discovered files
+4. Creates `.version` file if it doesn't exist
+
+This streamlined workflow eliminates the need to run `sley init` separately after discovery.
+
 ### `show`
 
 Display the current version.
@@ -163,25 +212,6 @@ Manage extensions for sley.
 sley extension <subcommand>
 ```
 
-### `modules` / `mods`
-
-Manage and discover modules in workspace.
-
-```bash
-sley modules <subcommand> [options]
-sley mods <subcommand> [options]
-```
-
-| Subcommand | Description                 |
-| ---------- | --------------------------- |
-| `list`     | List all discovered modules |
-| `discover` | Test discovery settings     |
-
-| Option      | Description                      |
-| ----------- | -------------------------------- |
-| `--verbose` | Show detailed output             |
-| `--format`  | Output format: text, json, table |
-
 ### `help`
 
 Shows a list of commands or help for one command.
@@ -197,5 +227,5 @@ sley -h
 - [.sley.yaml Reference](/reference/sley-yaml) - Configuration file options
 - [Environment Variables](/config/env-vars) - Configure via environment
 - [Plugin System](/plugins/) - Plugin configuration and usage
-- [Monorepo Support](/guide/monorepo) - Multi-module command flags
+- [Monorepo Support](/guide/monorepo) - Multi-module workflows and discovery
 - [Troubleshooting](/guide/troubleshooting/) - Common command issues

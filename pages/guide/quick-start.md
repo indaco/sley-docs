@@ -24,8 +24,13 @@ See [Installation](/guide/installation) for all installation options (go install
 ## Try It
 
 ```bash
+# Quick setup - automatically detect and configure your project
+sley discover              # scan project, auto-initialize .sley.yaml, enable plugins
+
+# Or initialize manually
 sley init                  # interactive: select plugins, creates .version and .sley.yaml
 sley init --migrate        # or pull version from existing package.json/Cargo.toml
+
 sley show                  # prints current version
 
 sley bump patch            # 1.2.3 -> 1.2.4

@@ -86,7 +86,8 @@ Always use version control (git) to track version changes. This makes rollback s
 # Reduce max depth in .sley.yaml
 workspace:
   discovery:
-    max_depth: 5 # Default is 10
+    module_max_depth: 5 # Default is 10
+    manifest_max_depth: 2 # Default is 3
 
     # Add more exclusions
     exclude:

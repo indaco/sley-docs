@@ -111,7 +111,8 @@ workspace:
   discovery:
     enabled: true
     recursive: true
-    max_depth: 10
+    module_max_depth: 10
+    manifest_max_depth: 3
     exclude:
       - "testdata"
       - "examples"
@@ -129,12 +130,13 @@ workspace:
 
 ### Discovery Options
 
-| Option      | Type     | Default | Description                        |
-| ----------- | -------- | ------- | ---------------------------------- |
-| `enabled`   | bool     | true    | Enable automatic discovery         |
-| `recursive` | bool     | true    | Search subdirectories recursively  |
-| `max_depth` | int      | 10      | Maximum directory depth to search  |
-| `exclude`   | []string | []      | Patterns to exclude from discovery |
+| Option               | Type     | Default | Description                                         |
+| -------------------- | -------- | ------- | --------------------------------------------------- |
+| `enabled`            | bool     | true    | Enable automatic discovery                          |
+| `recursive`          | bool     | true    | Search subdirectories recursively                   |
+| `module_max_depth`   | int      | 10      | Maximum directory depth for module `.version` files |
+| `manifest_max_depth` | int      | 3       | Maximum directory depth for manifest files          |
+| `exclude`            | []string | []      | Patterns to exclude from discovery                  |
 
 ### Module Definition
 
@@ -266,7 +268,8 @@ workspace:
   discovery:
     enabled: true
     recursive: true
-    max_depth: 5
+    module_max_depth: 5
+    manifest_max_depth: 3
     exclude:
       - "testdata"
       - "examples"

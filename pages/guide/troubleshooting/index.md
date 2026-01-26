@@ -37,7 +37,7 @@ For detailed troubleshooting output, use the verbose flag with any command:
 # Most commands support verbose output
 sley bump patch --verbose
 sley show --all --verbose
-sley modules list --verbose
+sley discover --format json
 ```
 
 You can also check your configuration:
@@ -49,8 +49,8 @@ cat .sley.yaml
 # Check current version
 sley show
 
-# List discovered modules (monorepo)
-sley modules list
+# Discover modules and version sources (monorepo)
+sley discover
 ```
 
 ## Browse by Category
@@ -83,7 +83,7 @@ If you can't resolve your issue:
 # Gather diagnostic information
 sley --version
 sley doctor
-sley modules list --verbose
+sley discover
 git --version
 cat .sley.yaml
 env | grep SLEY

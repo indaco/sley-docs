@@ -21,9 +21,92 @@ The dependency check plugin validates and synchronizes version numbers across mu
 - Handles nested fields with dot notation
 - Normalizes version formats (e.g., `1.2.3` matches `v1.2.3`)
 
-## Configuration
+## Automatic Configuration
 
-Enable and configure in `.sley.yaml`:
+The easiest way to configure the dependency-check plugin is to let sley detect your project structure automatically.
+
+### Via `sley discover`
+
+Run `sley discover` in your project root. The command recursively scans your entire project tree (up to 3 levels deep by default) to find manifest files and `.version` files. When manifest files are found (package.json, Cargo.toml, etc.), sley automatically configures dependency-check for you:
+
+```bash
+$ sley discover
+
+## Discovery Results
+
+Project Type: Single Module
+
+Version Files (.version):
+
+- version (1.2.3) - internal/version/.version
+
+Manifest Files:
+
+- package.json (1.2.3)
+- Cargo.toml (1.2.3)
+
+Module Sync Candidates:
+
+- modules/auth/.version (1.0.0)
+- modules/core/.version (1.2.0)
+
+---
+
+No .sley.yaml configuration found.
+
+? Would you like to initialize a sley project? [Y/n] y
+
+Created .sley.yaml with the following configuration:
+- Enabled plugins: commit-parser, tag-manager, dependency-check
+- Configured dependency-check with 2 manifest files and 2 module .version files
+- Created .version file with version 1.2.3
+```
+
+**What gets configured automatically:**
+
+1. **Default plugins**: `commit-parser` and `tag-manager` are always enabled
+2. **dependency-check plugin**: Enabled automatically when sync candidates are found
+3. **Manifest files**: Automatically added to `dependency-check.files` with the correct format (json, yaml, toml, etc.)
+4. **Module `.version` files**: Non-root `.version` files are added as sync candidates with `format: raw`
+5. **`.version` file creation**: If no root `.version` exists, one is created automatically
+
+**Increasing search depth:**
+
+For deeply nested project structures, use the `--depth` flag:
+
+```bash
+# Search up to 5 levels deep
+sley discover --depth 5
+```
+
+### Via `sley init --migrate`
+
+When initializing a new project with version migration, sley will suggest dependency-check for the detected sources:
+
+```bash
+$ sley init --migrate
+
+Detected versions:
+
+- package.json: 1.2.3
+- Cargo.toml: 1.2.3
+
+? Use 1.2.3 as your version? [Y/n] y
+? Keep these files in sync via dependency-check? [Y/n] y
+
+Created .version with 1.2.3
+Created .sley.yaml with dependency-check configuration
+```
+
+This automatically generates the correct configuration for your detected files, including the appropriate format and field paths.
+
+## Manual Configuration
+
+::: tip Auto-Configuration
+Run `sley discover` to automatically detect and configure dependency-check for common manifest files in your project.
+:::
+
+If you prefer to configure manually (or need to add files that weren't auto-detected), add them to your `.sley.yaml`:
 
 ::: tip Complete Example
 View the [dependency-check.yaml example](https://github.com/indaco/sley/blob/main/docs/plugins/examples/dependency-check.yaml) for all available options.
