@@ -129,6 +129,30 @@ During a version bump, extensions and plugins execute in a specific order:
 Pre-bump extensions execute **before** plugin validations. This allows extensions to set up state (e.g., fetch a version from an external source and update `.version`) before plugins validate consistency. After pre-bump extensions complete, sley re-reads the `.version` file to pick up any changes.
 :::
 
+::: info Command Coverage
+The execution flow above shows the complete `bump` command flow. Not all commands trigger all plugins. Simpler commands like `pre` and `set` only trigger the `dependency-check` plugin for syncing versions across files.
+:::
+
+## Plugin Command Coverage
+
+Different sley commands trigger different subsets of plugins:
+
+| Plugin               | Commands That Trigger It    |
+| -------------------- | --------------------------- |
+| dependency-check     | `bump *`, `pre`, `set`      |
+| release-gate         | `bump *` only               |
+| version-validator    | `bump *` only               |
+| tag-manager          | `bump *` only               |
+| changelog-generator  | `bump *` only               |
+| audit-log            | `bump *` only               |
+| commit-parser        | `bump auto` only            |
+| changelog-parser     | `bump auto` only            |
+
+**Command notes:**
+- `bump *` includes all bump variants: `bump major`, `bump minor`, `bump patch`, `bump auto`
+- `pre` command triggers only `dependency-check` for syncing pre-release versions
+- `set` command triggers only `dependency-check` for syncing explicitly set versions
+
 ## When to Use Plugins vs Extensions
 
 ### Use Plugins When

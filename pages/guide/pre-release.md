@@ -19,12 +19,12 @@ Use `sley pre` to set or replace a pre-release label:
 
 ```bash
 # .version = 0.2.1
-sley pre --label alpha
-# => 0.2.2-alpha
+sley pre alpha
+# => 0.2.1-alpha
 
 # If a pre-release is already present, it's replaced
 # .version = 0.2.2-beta.3
-sley pre --label alpha
+sley pre alpha
 # => 0.2.2-alpha
 ```
 
@@ -32,13 +32,31 @@ Use `--inc` to auto-increment the numeric suffix:
 
 ```bash
 # .version = 1.2.3
-sley pre --label alpha --inc
+sley pre alpha --inc
 # => 1.2.3-alpha.1
 
 # .version = 1.2.3-alpha.1
-sley pre --label alpha --inc
+sley pre alpha --inc
 # => 1.2.3-alpha.2
 ```
+
+### Dependency Sync with Pre Command
+
+When the `dependency-check` plugin is configured with `auto-sync: true`, the standalone `pre` command automatically syncs the pre-release version to all configured files. This is useful in coordinated versioning scenarios where you want to set a pre-release label across all modules:
+
+```bash
+# With dependency-check configured with auto-sync: true
+$ sley pre beta
+
+Sync dependencies
+  ✓ api (services/api/.version): 1.3.0-beta
+  ✓ web (services/web/.version): 1.3.0-beta
+  ✓ package.json (package.json): 1.3.0-beta
+
+Success: Pre-release set to 1.3.0-beta and synced to 3 file(s)
+```
+
+This ensures all dependency files remain synchronized when using the `pre` command, just as they do with `bump` commands.
 
 ## Typical Workflow
 
@@ -79,6 +97,58 @@ plugins:
 ```
 
 See [Tag Manager](/plugins/tag-manager) for more details.
+
+## Multi-Module Projects
+
+Pre-release versioning works seamlessly with multi-module projects and workspaces.
+
+### Independent Versioning (Workspace)
+
+Bump pre-release versions for specific modules or all modules:
+
+```bash
+# Bump pre-release for a specific module
+$ sley bump pre --module web
+Bump pre
+  ✓ web (apps/web/.version): 0.5.0-beta.1 -> 0.5.0-beta.2
+
+Success: 1 module updated
+
+# Bump pre-release for all modules
+$ sley bump pre --all
+Bump pre
+  ✓ root (.version): 1.0.0-alpha -> 1.0.0-alpha.1
+  ✓ web (apps/web/.version): 1.0.0-alpha -> 1.0.0-alpha.1
+  ✓ core (packages/core/.version): 1.0.0-alpha -> 1.0.0-alpha.1
+
+Success: 3 modules updated
+```
+
+### Coordinated Versioning
+
+When using coordinated versioning with dependency-check, bumping the root pre-release version automatically syncs to all modules. Both the `bump pre` and standalone `pre` commands support automatic syncing:
+
+```bash
+# Bump root pre-release - syncs automatically to all configured modules
+$ sley bump pre
+
+Sync dependencies
+  ✓ api (services/api/.version): 1.3.0-beta.2
+  ✓ web (services/web/.version): 1.3.0-beta.2
+
+Success: Version bumped to 1.3.0-beta.2 and synced to 2 file(s)
+
+# Set pre-release label - also syncs automatically
+$ sley pre rc
+
+Sync dependencies
+  ✓ api (services/api/.version): 1.3.0-rc
+  ✓ web (services/web/.version): 1.3.0-rc
+
+Success: Pre-release set to 1.3.0-rc and synced to 2 file(s)
+```
+
+See [Monorepo Support](/guide/monorepo) for more details on versioning models.
 
 ## Pre-release Validation
 

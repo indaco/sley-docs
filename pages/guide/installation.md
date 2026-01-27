@@ -39,7 +39,7 @@ go install github.com/indaco/sley/cmd/sley@latest
 
 ### Install via `go install` (tool)
 
-With Go 1.24 or greater installed, you can install `sley` locally in your project by running:
+With Go 1.25 or greater installed, you can install `sley` locally in your project by running:
 
 ```bash
 go get -tool github.com/indaco/sley/cmd/sley@latest

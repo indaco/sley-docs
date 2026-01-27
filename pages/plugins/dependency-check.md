@@ -11,6 +11,10 @@ head:
 
 The dependency check plugin validates and synchronizes version numbers across multiple files in your repository. This ensures consistency between your `.version` file and other version declarations in package manifests, build files, and source code.
 
+::: info Manifest Files
+**Manifest files** are language-specific configuration files that contain version information: `package.json` (Node.js), `Cargo.toml` (Rust), `pyproject.toml` (Python), `Chart.yaml` (Helm), `composer.json` (PHP), and similar files.
+:::
+
 <PluginMeta :enabled="false" type="sync" />
 
 ## Features
@@ -45,11 +49,6 @@ Manifest Files:
 - package.json (1.2.3)
 - Cargo.toml (1.2.3)
 
-Module Sync Candidates:
-
-- modules/auth/.version (1.0.0)
-- modules/core/.version (1.2.0)
-
 ---
 
 No .sley.yaml configuration found.
@@ -58,17 +57,26 @@ No .sley.yaml configuration found.
 
 Created .sley.yaml with the following configuration:
 - Enabled plugins: commit-parser, tag-manager, dependency-check
-- Configured dependency-check with 2 manifest files and 2 module .version files
+- Configured dependency-check with 2 manifest files
 - Created .version file with version 1.2.3
 ```
 
 **What gets configured automatically:**
 
 1. **Default plugins**: `commit-parser` and `tag-manager` are always enabled
-2. **dependency-check plugin**: Enabled automatically when sync candidates are found
+2. **dependency-check plugin**: Enabled automatically when manifest files are found
 3. **Manifest files**: Automatically added to `dependency-check.files` with the correct format (json, yaml, toml, etc.)
-4. **Module `.version` files**: Non-root `.version` files are added as sync candidates with `format: raw`
-5. **`.version` file creation**: If no root `.version` exists, one is created automatically
+4. **`.version` file creation**: If no root `.version` exists, one is created automatically
+
+::: info Sync Targets and Versioning Models
+The dependency-check plugin syncs files TO the `.version` file. What can be synced depends on your versioning model:
+
+- **Single-root**: Syncs manifest files (package.json, Cargo.toml, etc.) TO the root `.version`
+- **Coordinated versioning**: Syncs both manifest files AND submodule `.version` files TO the root `.version`
+- **Independent versioning** (workspace): Each module's `dependency-check` syncs only manifest files TO that module's `.version`
+
+See [Understanding Versioning Models](/guide/monorepo#understanding-versioning-models) to choose the right approach.
+:::
 
 **Increasing search depth:**
 
@@ -176,11 +184,88 @@ files:
   - path: VERSION
     format: raw
 
+  # Submodule .version files (coordinated versioning)
+  - path: services/api/.version
+    format: raw
+
   # Regex pattern (must have one capturing group)
   - path: src/version.go
     format: regex
     pattern: 'const Version = "(.*?)"'
 ```
+
+::: tip Coordinated Versioning
+Use `format: raw` for submodule `.version` files when implementing coordinated versioning. This syncs them to the root `.version` file automatically.
+:::
+
+### Coordinated Versioning Example
+
+In coordinated versioning, you can sync submodule `.version` files TO the root `.version`. This is the key to achieving automatic coordinated versioning across all modules:
+
+```yaml
+# Root .sley.yaml
+path: .version
+
+plugins:
+  dependency-check:
+    enabled: true
+    auto-sync: true
+    files:
+      # Sync manifest files to root
+      - path: package.json
+        field: version
+        format: json
+      - path: services/web/package.json
+        field: version
+        format: json
+
+      # Sync submodule .version files to root using format: raw
+      - path: services/api/.version
+        format: raw
+      - path: services/web/.version
+        format: raw
+```
+
+**How it works:**
+
+When you modify the root version using any command, the dependency-check plugin automatically syncs all configured files:
+
+```bash
+# Bump commands
+$ sley bump patch
+
+Sync dependencies
+  ✓ api (services/api/.version): 2.0.1
+  ✓ web (services/web/.version): 2.0.1
+  ✓ package.json (package.json): 2.0.1
+  ✓ package.json (services/web/package.json): 2.0.1
+
+Success: Version bumped to 2.0.1 and synced to 4 file(s)
+
+# Pre-release with bump pre
+$ sley bump pre --label beta
+
+Sync dependencies
+  ✓ api (services/api/.version): 2.0.1-beta.1
+  ✓ web (services/web/.version): 2.0.1-beta.1
+  ✓ package.json (package.json): 2.0.1-beta.1
+  ✓ package.json (services/web/package.json): 2.0.1-beta.1
+
+Success: Version bumped to 2.0.1-beta.1 and synced to 4 file(s)
+
+# Standalone pre command
+$ sley pre rc
+
+Sync dependencies
+  ✓ api (services/api/.version): 2.0.1-rc
+  ✓ web (services/web/.version): 2.0.1-rc
+  ✓ package.json (package.json): 2.0.1-rc
+  ✓ package.json (services/web/package.json): 2.0.1-rc
+
+Success: Pre-release set to 2.0.1-rc and synced to 4 file(s)
+```
+
+This ensures all modules always have the same version as the root `.version` file. All submodule `.version` files and manifest files update automatically in a single operation, whether you're bumping versions or setting pre-release labels.
 
 ## Behavior
 
@@ -188,15 +273,27 @@ files:
 
 The plugin validates that all configured files can be updated. If inconsistencies or errors are detected, the bump is aborted.
 
-### Auto-Sync (After Bump)
+### Auto-Sync (After Bump or Pre)
 
-With `auto-sync: true`, files are automatically updated after the `.version` file is bumped:
+With `auto-sync: true`, files are automatically updated after the `.version` file is modified by any command that changes the version:
 
 ```bash
+# Bump commands trigger auto-sync
 sley bump patch
 # Version bumped from 1.2.3 to 1.2.4
 # Synced version to 3 dependency file(s)
+
+sley bump pre --label beta
+# Version bumped from 1.2.4 to 1.2.4-beta.1
+# Synced version to 3 dependency file(s)
+
+# Standalone pre command also triggers auto-sync
+sley pre rc
+# Pre-release set to 1.2.4-rc
+# Synced version to 3 dependency file(s)
 ```
+
+This ensures all configured files remain synchronized regardless of which command you use to modify the version.
 
 ## Version Normalization
 

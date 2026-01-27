@@ -120,9 +120,11 @@ sley set 1.0.0 --all
 # Or bump all modules together
 sley bump patch --all
 
-# Consider enabling dependency-check to keep versions in sync automatically
-# Run: sley discover
-# It will suggest dependency-check configuration for your project
+# Note: dependency-check behavior depends on your versioning model:
+# - Single-root: Syncs manifest files to .version
+# - Coordinated versioning: Syncs both manifest files AND submodule .version files to root
+# - Independent versioning (workspace): Each module manages its own .version
+# See: /guide/monorepo#understanding-versioning-models
 ```
 
 ## See Also

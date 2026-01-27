@@ -96,44 +96,92 @@ sley init --migrate --yes
 ## Display current version
 
 ```bash
-# .version = 1.2.3
+# Single-root: Display current version
 sley show
 # => 1.2.3
-```
 
-```bash
 # Fail if .version is missing (strict mode)
 sley show --strict
 # => Error: version file not found at .version
 ```
 
+### Multi-Module Projects
+
+```bash
+# Show all module versions
+sley show --all
+# Output:
+#   ✓ root (.version): 1.0.0
+#   ✓ web (apps/web/.version): 0.5.0-beta.1
+#   ✓ core (packages/core/.version): 3.2.1
+#   ✓ utils (packages/utils/.version): 2.0.0
+
+# Show specific module version
+sley show --module core
+# => 3.2.1
+
+# JSON output for CI/CD
+sley show --all --format json
+# => [{"name":"root","path":".version","version":"1.0.0"},...]
+
+# Table format
+sley show --all --format table
+# ┌──────┬─────────────────────┬──────────┐
+# │ Name │ Path                │ Version  │
+# ├──────┼─────────────────────┼──────────┤
+# │ root │ .version            │ 1.0.0    │
+# │ web  │ apps/web/.version   │ 0.5.0    │
+# └──────┴─────────────────────┴──────────┘
+```
+
+See [Monorepo Support](/guide/monorepo#command-examples-by-versioning-model) for detailed examples across different versioning models.
+
 ## Set version manually
 
 ```bash
+# Single-root: Set version
 sley set 2.1.0
 # => .version is now 2.1.0
-```
 
-You can also set a pre-release version:
-
-```bash
+# Set pre-release version
 sley set 2.1.0 --pre beta.1
 # => .version is now 2.1.0-beta.1
-```
 
-You can also attach build metadata:
-
-```bash
+# Attach build metadata
 sley set 1.0.0 --meta ci.001
 # => .version is now 1.0.0+ci.001
-```
 
-Or combine both:
-
-```bash
+# Combine pre-release and metadata
 sley set 1.0.0 --pre alpha --meta build.42
 # => .version is now 1.0.0-alpha+build.42
 ```
+
+### Multi-Module Projects
+
+```bash
+# Coordinated versioning: Set all modules to same version
+sley set 2.1.0 --all
+# Output:
+# Set version to 2.1.0
+#   ✓ coordinated-versioning (.version): 2.0.0 -> 2.1.0
+#   ✓ api (services/api/.version): 2.0.0 -> 2.1.0
+#   ✓ web (services/web/.version): 2.0.0 -> 2.1.0
+
+# Independent versioning: Set specific module version
+sley set 4.0.0 --module core
+# Output:
+#   ✓ core (packages/core/.version): 3.2.1 -> 4.0.0
+
+# Set all modules to same version (rare in independent versioning)
+sley set 1.0.0 --all
+# Output:
+#   ✓ root (.version): 1.0.0 -> 1.0.0
+#   ✓ web (apps/web/.version): 0.5.0-beta.1 -> 1.0.0
+#   ✓ core (packages/core/.version): 3.2.1 -> 1.0.0
+#   ✓ utils (packages/utils/.version): 2.0.0 -> 1.0.0
+```
+
+See [Monorepo Support](/guide/monorepo#command-examples-by-versioning-model) for detailed examples across different versioning models.
 
 ## Bump version
 
@@ -172,6 +220,20 @@ sley bump pre
 # .version = 1.0.0-alpha.3
 sley bump pre --label beta
 # => 1.0.0-beta.1
+```
+
+### Multi-Module Pre-release Bumps
+
+The `bump pre` command supports multi-module operations:
+
+```bash
+# Bump pre-release for all modules
+sley bump pre --all
+sley bump pre --all --label beta
+
+# Bump pre-release for specific module
+sley bump pre --module api
+sley bump pre --module web --label rc
 ```
 
 You can also pass `--pre` and/or `--meta` flags to any bump:
@@ -241,18 +303,53 @@ Valid `--label` values: `patch`, `minor`, `major`.
 Check whether the `.version` file exists and contains a valid semantic version:
 
 ```bash
-# .version = 1.2.3
+# Single-root: Validate version file and configuration
 sley validate
 # => Valid version file at ./<path>/.version
-```
 
-If the file is missing or contains an invalid value, an error is returned:
+# Use doctor alias (validates config and version file)
+sley doctor
+# Output:
+# Configuration Validation:
+#   ✓ [PASS] YAML Syntax
+#   ✓ [PASS] Plugin Configuration
+#
+# Version File Validation:
+#   ✓ [PASS] .version exists and is valid (1.2.3)
 
-```bash
-# .version = invalid-content
+# If the file is missing or contains an invalid value
 sley validate
 # => Error: invalid version format: ...
 ```
+
+### Multi-Module Projects
+
+```bash
+# Validate all modules
+sley doctor --all
+# Output:
+# Configuration Validation:
+#   ✓ [PASS] YAML Syntax
+#   ✓ [PASS] Plugin Configuration
+#
+# Validation Summary
+#   ✓ root (.version): 1.0.0
+#   ✓ web (apps/web/.version): 0.5.0-beta.1
+#   ✓ core (packages/core/.version): 3.2.1
+#   ✓ utils (packages/utils/.version): 2.0.0
+
+# Validate specific module
+sley doctor --module web
+# Output:
+# Configuration Validation:
+#   ✓ [PASS] YAML Syntax
+#   ✓ [PASS] Plugin Configuration
+#
+# Version File Validation:
+#   ✓ web (apps/web/.version): 0.5.0-beta.1
+```
+
+See [Monorepo Support](/guide/monorepo#command-examples-by-versioning-model) for detailed examples across different versioning models.
 
 ## Manage Git tags
 
@@ -329,6 +426,11 @@ Choose your path based on your needs:
 
 - [Pre-release Versions](/guide/pre-release) - Alpha, beta, RC workflows
 - [Changelog Generator](/plugins/changelog-generator) - Generate changelogs from commits
+
+**Syncing versions across files?**
+
+- [Understanding Versioning Models](/guide/monorepo#understanding-versioning-models) - Choose the right approach for your project
+- [dependency-check Plugin](/plugins/dependency-check) - Keep package.json, Cargo.toml, etc. in sync with `.version`
 
 **Managing multiple modules?**
 

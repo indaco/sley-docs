@@ -21,6 +21,11 @@ For an overview of configuration methods and precedence, see [Configuration](/co
 # Path to .version file
 path: .version
 
+# Workspace configuration (monorepos only)
+workspace:
+  discovery:
+    enabled: true
+
 # Plugin configuration
 plugins:
   commit-parser: true
@@ -33,11 +38,6 @@ extensions:
   - name: my-extension
     path: /path/to/extension
     enabled: true
-
-# Workspace configuration (monorepos)
-workspace:
-  discovery:
-    enabled: true
 ```
 
 ## Top-Level Options
@@ -45,9 +45,102 @@ workspace:
 | Option       | Type   | Default    | Description                      |
 | ------------ | ------ | ---------- | -------------------------------- |
 | `path`       | string | `.version` | Path to the .version file        |
+| `workspace`  | object | `{}`       | Workspace/monorepo configuration |
 | `plugins`    | object | `{}`       | Plugin configuration             |
 | `extensions` | array  | `[]`       | Extension configuration          |
-| `workspace`  | object | `{}`       | Workspace/monorepo configuration |
+
+## Path Configuration
+
+The `path` option specifies the location of the `.version` file:
+
+```yaml
+# Default (recommended)
+path: .version
+
+# Custom filename
+path: VERSION
+
+# Custom location
+path: ./config/.version
+```
+
+| Value                | Description                           |
+| -------------------- | ------------------------------------- |
+| `.version`           | Default. Version file in project root |
+| `VERSION`            | Alternative filename (no dot prefix)  |
+| `./path/to/.version` | Custom path relative to project root  |
+
+::: tip
+Most projects use the default `.version` in the project root. Custom paths are useful when integrating with existing version file conventions.
+:::
+
+## Workspace Configuration
+
+For monorepos with multiple `.version` files. See [Monorepo Support](/guide/monorepo) for a complete guide.
+
+```yaml
+workspace:
+  discovery:
+    enabled: true
+    recursive: true
+    module_max_depth: 10
+    manifest_max_depth: 3
+    exclude:
+      - "testdata"
+      - "examples"
+      - "node_modules"
+
+  # Optional: explicit module definitions
+  modules:
+    - name: api
+      path: ./services/api/.version
+      enabled: true
+    - name: legacy
+      path: ./legacy/.version
+      enabled: false
+```
+
+::: info Workspace vs dependency-check
+These configurations serve different purposes:
+
+- **`workspace`** - Manages multiple **`.version` files** as independent version sources (independent versioning)
+- **`dependency-check`** - Syncs files TO a `.version` file (manifest files and, in coordinated versioning, submodule `.version` files)
+
+**Important:** The role of `.version` files depends on your versioning model:
+- **Independent versioning** (workspace): Each `.version` file is a source of truth
+- **Coordinated versioning**: Submodule `.version` files sync TO the root `.version` file
+- **Single-root**: Only one `.version` file exists (always a source)
+
+See [Understanding Versioning Models](/guide/monorepo#understanding-versioning-models) for detailed guidance.
+:::
+
+### When to Use Workspace Configuration
+
+| Scenario                                   | Use Workspace? | Recommended Model                          |
+| ------------------------------------------ | -------------- | ------------------------------------------ |
+| Multiple independently-versioned modules   | Yes            | Independent versioning (workspace)         |
+| Monorepo with packages released separately | Yes            | Independent versioning (workspace)         |
+| Multiple `.version` files, same version    | No             | Coordinated versioning (`dependency-check`)|
+| Single module with multiple manifest files | No             | Single-root (`dependency-check`)           |
+| All files share the same version           | No             | Single-root or coordinated versioning      |
+
+### Discovery Options
+
+| Option               | Type     | Default | Description                                         |
+| -------------------- | -------- | ------- | --------------------------------------------------- |
+| `enabled`            | bool     | true    | Enable automatic discovery                          |
+| `recursive`          | bool     | true    | Search subdirectories recursively                   |
+| `module_max_depth`   | int      | 10      | Maximum directory depth for module `.version` files |
+| `manifest_max_depth` | int      | 3       | Maximum directory depth for manifest files          |
+| `exclude`            | []string | []      | Patterns to exclude from discovery                  |
+
+### Module Definition
+
+| Field     | Type   | Required | Description                    |
+| --------- | ------ | -------- | ------------------------------ |
+| `name`    | string | yes      | Module name                    |
+| `path`    | string | yes      | Path to .version file          |
+| `enabled` | bool   | no       | Enable/disable (default: true) |
 
 ## Plugin Configuration
 
@@ -101,50 +194,6 @@ extensions:
 | `path`    | string   | yes      | Path to extension directory    |
 | `enabled` | bool     | no       | Enable/disable (default: true) |
 | `hooks`   | []string | no       | Hooks to run (default: all)    |
-
-## Workspace Configuration
-
-For monorepos with multiple `.version` files:
-
-```yaml
-workspace:
-  discovery:
-    enabled: true
-    recursive: true
-    module_max_depth: 10
-    manifest_max_depth: 3
-    exclude:
-      - "testdata"
-      - "examples"
-      - "node_modules"
-
-  # Optional: explicit module definitions
-  modules:
-    - name: api
-      path: ./services/api/.version
-      enabled: true
-    - name: legacy
-      path: ./legacy/.version
-      enabled: false
-```
-
-### Discovery Options
-
-| Option               | Type     | Default | Description                                         |
-| -------------------- | -------- | ------- | --------------------------------------------------- |
-| `enabled`            | bool     | true    | Enable automatic discovery                          |
-| `recursive`          | bool     | true    | Search subdirectories recursively                   |
-| `module_max_depth`   | int      | 10      | Maximum directory depth for module `.version` files |
-| `manifest_max_depth` | int      | 3       | Maximum directory depth for manifest files          |
-| `exclude`            | []string | []      | Patterns to exclude from discovery                  |
-
-### Module Definition
-
-| Field     | Type   | Required | Description                    |
-| --------- | ------ | -------- | ------------------------------ |
-| `name`    | string | yes      | Module name                    |
-| `path`    | string | yes      | Path to .version file          |
-| `enabled` | bool   | no       | Enable/disable (default: true) |
 
 ## Complete Example
 
@@ -281,7 +330,7 @@ In monorepos, each module can have its own `.sley.yaml` that overrides workspace
 
 ```yaml
 # services/api/.sley.yaml
-path: VERSION # Use VERSION instead of .version
+path: .version
 plugins:
   commit-parser: false # Disable for this module
   tag-manager:

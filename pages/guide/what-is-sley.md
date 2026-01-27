@@ -51,7 +51,17 @@ A command-line tool for managing [SemVer 2.0.0](https://semver.org/) versions us
 - **Not a standalone changelog tool** - changelog generation is available via the built-in `changelog-generator` plugin
 - **Not a build system** - it just manages the version string
 
-The `.version` file complements your existing tools. Pair it with `git tag` for releases, inject it into binaries at build time, or sync it across `package.json`, `Cargo.toml`, and other files using the [`dependency-check` plugin](/plugins/dependency-check).
+The `.version` file complements your existing tools. Pair it with `git tag` for releases, inject it into binaries at build time, or sync it across `package.json`, `Cargo.toml`, and other manifest files using the [`dependency-check` plugin](/plugins/dependency-check).
+
+::: tip Choosing Your Versioning Model
+`sley` supports three versioning models:
+
+- **Single-root**: One `.version` file, sync manifest files with `dependency-check`
+- **Coordinated versioning**: Multiple `.version` files that all sync to root (one version everywhere)
+- **Independent versioning**: Multiple `.version` files with independent versions (workspace mode)
+
+Run `sley discover` to detect your project structure and choose the right model. See [Understanding Versioning Models](/guide/monorepo#understanding-versioning-models) for detailed guidance.
+:::
 
 ## What's Next?
 
