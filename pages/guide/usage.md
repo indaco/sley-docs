@@ -9,9 +9,29 @@ head:
 
 # {{ $frontmatter.title }}
 
-## Initialize project
+## Quick Reference
 
-### Interactive mode
+| Command | Purpose | Example |
+| --- | --- | --- |
+| `sley init` | Initialize project with .version | `sley init --migrate` |
+| `sley discover` | Auto-discover version sources | `sley discover --format json` |
+| `sley show` | Display current version | `sley show --all` |
+| `sley set` | Set version manually | `sley set 2.0.0 --pre beta` |
+| `sley bump` | Increment version | `sley bump patch` |
+| `sley bump pre` | Increment pre-release | `sley bump pre --label beta` |
+| `sley bump auto` | Smart version bump | `sley bump auto` |
+| `sley bump release` | Remove pre-release | `sley bump release` |
+| `sley pre` | Set pre-release label | `sley pre --label alpha --inc` |
+| `sley validate` | Validate .version file | `sley validate --strict` |
+| `sley doctor` | Validate config and version | `sley doctor --all` |
+| `sley tag` | Manage git tags | `sley tag create --push` |
+| `sley changelog` | Manage changelogs | `sley changelog merge` |
+
+## Project Setup
+
+### Initialize Project
+
+#### Interactive Mode
 
 Run `sley init` without flags to launch the interactive TUI where you can select which plugins to enable:
 
@@ -31,15 +51,16 @@ Use the keyboard to navigate and select plugins:
 - **n**: Select none
 - **Esc**: Cancel
 
-### Non-interactive mode
+#### Non-Interactive Mode
 
 For CI/CD pipelines or scripted setups, use the `--yes` flag to skip prompts:
 
 ```bash
 # Use sensible defaults (commit-parser, tag-manager)
 sley init --yes
-# => Created .version with version 0.1.0
-# => Created .sley.yaml with default plugins (commit-parser, tag-manager)
+# Output:
+#   Created .version with version 0.1.0
+#   Created .sley.yaml with default plugins (commit-parser, tag-manager)
 
 # Use a pre-configured template
 sley init --template automation
@@ -54,7 +75,7 @@ sley init --workspace --yes
 sley init --yes --force
 ```
 
-### Migrate from existing version
+#### Migrate from Existing Version
 
 If your project already has a version defined in `package.json`, `Cargo.toml`, or similar files, use `--migrate` to detect and import it:
 
@@ -71,7 +92,7 @@ The migration feature will scan for version sources and prompt you to confirm be
 sley init --migrate --yes
 ```
 
-### Available flags
+#### Available Flags
 
 | Flag           | Description                                               |
 | -------------- | --------------------------------------------------------- |
@@ -83,7 +104,7 @@ sley init --migrate --yes
 | `--force`      | Overwrite existing .sley.yaml                             |
 | `--path`, `-p` | Custom path for .version file                             |
 
-### Available templates
+#### Available Templates
 
 | Template     | Plugins Enabled                                             |
 | ------------ | ----------------------------------------------------------- |
@@ -93,19 +114,41 @@ sley init --migrate --yes
 | `strict`     | commit-parser, tag-manager, version-validator, release-gate |
 | `full`       | All plugins enabled                                         |
 
-## Display current version
+### Auto-Discover Version Sources
+
+If your project already has versions in manifest files (package.json, Cargo.toml, pyproject.toml, etc.), `discover` provides an interactive workflow to scan and initialize:
+
+```bash
+sley discover
+```
+
+The command will:
+
+1. Scan for `.version` files and manifest files in your project tree
+2. Display what it found
+3. Ask if you want to initialize
+4. Let you select which files to keep in sync
+5. Create `.version` and `.sley.yaml` with `dependency-check` pre-configured
+
+Useful for migrating existing projects or setting up monorepos with multiple version sources.
+
+See [CLI Reference: discover](/reference/cli#discover-scan) for all options.
+
+## Version Operations
+
+### Display Current Version
 
 ```bash
 # Single-root: Display current version
 sley show
-# => 1.2.3
+# Output: 1.2.3
 
 # Fail if .version is missing (strict mode)
 sley show --strict
-# => Error: version file not found at .version
+# Output: Error: version file not found at .version
 ```
 
-### Multi-Module Projects
+#### Multi-Module Projects
 
 ```bash
 # Show all module versions
@@ -118,11 +161,11 @@ sley show --all
 
 # Show specific module version
 sley show --module core
-# => 3.2.1
+# Output: 3.2.1
 
 # JSON output for CI/CD
 sley show --all --format json
-# => [{"name":"root","path":".version","version":"1.0.0"},...]
+# Output: [{"name":"root","path":".version","version":"1.0.0"},...]
 
 # Table format
 sley show --all --format table
@@ -134,29 +177,29 @@ sley show --all --format table
 # └──────┴─────────────────────┴──────────┘
 ```
 
-See [Monorepo Support](/guide/monorepo#command-examples-by-versioning-model) for detailed examples across different versioning models.
+See [Monorepo Support](/guide/monorepo/#command-examples-by-versioning-model) for detailed examples across different versioning models.
 
-## Set version manually
+### Set Version Manually
 
 ```bash
 # Single-root: Set version
 sley set 2.1.0
-# => .version is now 2.1.0
+# Output: .version is now 2.1.0
 
 # Set pre-release version
 sley set 2.1.0 --pre beta.1
-# => .version is now 2.1.0-beta.1
+# Output: .version is now 2.1.0-beta.1
 
 # Attach build metadata
 sley set 1.0.0 --meta ci.001
-# => .version is now 1.0.0+ci.001
+# Output: .version is now 1.0.0+ci.001
 
 # Combine pre-release and metadata
 sley set 1.0.0 --pre alpha --meta build.42
-# => .version is now 1.0.0-alpha+build.42
+# Output: .version is now 1.0.0-alpha+build.42
 ```
 
-### Multi-Module Projects
+#### Multi-Module Projects
 
 ```bash
 # Coordinated versioning: Set all modules to same version
@@ -181,48 +224,48 @@ sley set 1.0.0 --all
 #   ✓ utils (packages/utils/.version): 2.0.0 -> 1.0.0
 ```
 
-See [Monorepo Support](/guide/monorepo#command-examples-by-versioning-model) for detailed examples across different versioning models.
+See [Monorepo Support](/guide/monorepo/#command-examples-by-versioning-model) for detailed examples across different versioning models.
 
-## Bump version
+### Bump Version
 
 ```bash
-sley show
-# => 1.2.3
+# Current: 1.2.3
 
 sley bump patch
-# => 1.2.4
+# Output: 1.2.4
 
 sley bump minor
-# => 1.3.0
+# Output: 1.3.0
 
 sley bump major
-# => 2.0.0
+# Output: 2.0.0
 
-# .version = 1.3.0-alpha.1+build.123
+# Remove pre-release and metadata
+# Current: 1.3.0-alpha.1+build.123
 sley bump release
-# => 1.3.0
+# Output: 1.3.0
 ```
 
-## Increment Pre-release (`bump pre`)
+### Increment Pre-release
 
 Increment only the pre-release portion without bumping the version number:
 
 ```bash
-# .version = 1.0.0-rc.1
+# Current: 1.0.0-rc.1
 sley bump pre
-# => 1.0.0-rc.2
+# Output: 1.0.0-rc.2
 
-# .version = 1.0.0-rc1
+# Current: 1.0.0-rc1
 sley bump pre
-# => 1.0.0-rc2
+# Output: 1.0.0-rc2
 
 # Switch to a different pre-release label
-# .version = 1.0.0-alpha.3
+# Current: 1.0.0-alpha.3
 sley bump pre --label beta
-# => 1.0.0-beta.1
+# Output: 1.0.0-beta.1
 ```
 
-### Multi-Module Pre-release Bumps
+#### Multi-Module Pre-release Bumps
 
 The `bump pre` command supports multi-module operations:
 
@@ -240,17 +283,17 @@ You can also pass `--pre` and/or `--meta` flags to any bump:
 
 ```bash
 sley bump patch --pre beta.1
-# => 1.2.4-beta.1
+# Output: 1.2.4-beta.1
 
 sley bump minor --meta ci.123
-# => 1.3.0+ci.123
+# Output: 1.3.0+ci.123
 
 sley bump major --pre rc.1 --meta build.7
-# => 2.0.0-rc.1+build.7
+# Output: 2.0.0-rc.1+build.7
 
 # Skip pre-release hooks and extensions during bump
 sley bump patch --skip-hooks
-# => 1.2.4 (no hooks executed)
+# Output: 1.2.4 (no hooks executed)
 ```
 
 ::: tip
@@ -260,52 +303,79 @@ By default, any existing build metadata (the part after `+`) is **cleared** when
 To **preserve** existing metadata, pass the `--preserve-meta` flag:
 
 ```bash
-# .version = 1.2.3+build.789
+# Current: 1.2.3+build.789
 sley bump patch --preserve-meta
-# => 1.2.4+build.789
+# Output: 1.2.4+build.789
 
-# .version = 1.2.3+build.789
+# Current: 1.2.3+build.789
 sley bump patch --meta new.build
-# => 1.2.4+new.build (overrides existing metadata)
+# Output: 1.2.4+new.build (overrides existing metadata)
 ```
 
-## Smart bump logic (`bump auto`)
+### Smart Bump Logic
 
 Automatically determine the next version:
 
 ```bash
-# .version = 1.2.3-alpha.1
+# Current: 1.2.3-alpha.1
 sley bump auto
-# => 1.2.3
+# Output: 1.2.3
 
-# .version = 1.2.3
+# Current: 1.2.3
 sley bump auto
-# => 1.2.4
+# Output: 1.2.4
 ```
 
 Override bump with `--label`:
 
 ```bash
 sley bump auto --label minor
-# => 1.3.0
+# Output: 1.3.0
 
 sley bump auto --label major --meta ci.9
-# => 2.0.0+ci.9
+# Output: 2.0.0+ci.9
 
 sley bump auto --label patch --preserve-meta
-# => bumps patch and keeps build metadata
+# Output: bumps patch and keeps build metadata
 ```
 
 Valid `--label` values: `patch`, `minor`, `major`.
 
-## Validate .version file
+### Set Pre-release Label
+
+The `pre` command provides explicit control over pre-release labels:
+
+```bash
+# Current: 1.2.3
+sley pre --label alpha
+# Output: 1.2.4-alpha (bumps patch first)
+
+# Current: 1.2.3
+sley pre --label alpha --inc
+# Output: 1.2.3-alpha.1 (no patch bump, adds numeric suffix)
+
+# Current: 1.2.3-alpha.1
+sley pre --label alpha --inc
+# Output: 1.2.3-alpha.2 (increments counter)
+
+# Switch labels
+# Current: 1.2.3-alpha.5
+sley pre --label beta --inc
+# Output: 1.2.3-beta.1 (new label, counter starts at 1)
+```
+
+See [Pre-release Versions](/guide/pre-release) for complete guide on pre-release workflows.
+
+## Validation
+
+### Validate Version File
 
 Check whether the `.version` file exists and contains a valid semantic version:
 
 ```bash
 # Single-root: Validate version file and configuration
 sley validate
-# => Valid version file at ./<path>/.version
+# Output: Valid version file at ./<path>/.version
 
 # Use doctor alias (validates config and version file)
 sley doctor
@@ -319,10 +389,10 @@ sley doctor
 
 # If the file is missing or contains an invalid value
 sley validate
-# => Error: invalid version format: ...
+# Output: Error: invalid version format: ...
 ```
 
-### Multi-Module Projects
+#### Multi-Module Projects
 
 ```bash
 # Validate all modules
@@ -349,9 +419,11 @@ sley doctor --module web
 #   ✓ web (apps/web/.version): 0.5.0-beta.1
 ```
 
-See [Monorepo Support](/guide/monorepo#command-examples-by-versioning-model) for detailed examples across different versioning models.
+See [Monorepo Support](/guide/monorepo/#command-examples-by-versioning-model) for detailed examples across different versioning models.
 
-## Manage Git tags
+## Git Integration
+
+### Manage Git Tags
 
 ```bash
 sley tag create             # Create tag for current version
@@ -361,7 +433,7 @@ sley tag list               # List version tags
 
 See [Tag Manager](/plugins/tag-manager) for automatic tagging, GPG signing, and configuration options.
 
-## Manage changelogs
+### Manage Changelogs
 
 ```bash
 sley changelog merge        # Merge versioned changelogs into CHANGELOG.md
@@ -369,27 +441,9 @@ sley changelog merge        # Merge versioned changelogs into CHANGELOG.md
 
 See [Changelog Generator](/plugins/changelog-generator) for automatic changelog generation from commits.
 
-## Auto-discover version sources
+## Advanced Operations
 
-If your project already has versions in manifest files (package.json, Cargo.toml, pyproject.toml, etc.), `discover` provides an interactive workflow to scan and initialize:
-
-```bash
-sley discover
-```
-
-The command will:
-
-1. Scan for `.version` files and manifest files in your project tree
-2. Display what it found
-3. Ask if you want to initialize
-4. Let you select which files to keep in sync
-5. Create `.version` and `.sley.yaml` with `dependency-check` pre-configured
-
-Useful for migrating existing projects or setting up monorepos with multiple version sources.
-
-See [CLI Reference: discover](/reference/cli#discover-scan) for all options.
-
-## Rolling back a version change
+### Rolling Back a Version Change
 
 If you need to undo a version bump:
 
@@ -429,12 +483,12 @@ Choose your path based on your needs:
 
 **Syncing versions across files?**
 
-- [Understanding Versioning Models](/guide/monorepo#understanding-versioning-models) - Choose the right approach for your project
+- [Understanding Versioning Models](/guide/monorepo/#understanding-versioning-models) - Choose the right approach for your project
 - [dependency-check Plugin](/plugins/dependency-check) - Keep package.json, Cargo.toml, etc. in sync with `.version`
 
 **Managing multiple modules?**
 
-- [Monorepo Support](/guide/monorepo) - Multi-module version management
+- [Monorepo Support](/guide/monorepo/) - Multi-module version management
 - [Workspace Configuration](/reference/sley-yaml#workspace-configuration) - Configure module discovery
 
 **Need more details?**

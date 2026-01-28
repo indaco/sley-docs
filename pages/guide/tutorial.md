@@ -19,7 +19,11 @@ This tutorial walks you through setting up sley in a new project, making your fi
 
 **Time:** ~10 minutes
 
-## Step 1: Initialize Your Project
+## Core Steps
+
+These steps establish the essential versioning workflow.
+
+### Step 1: Initialize Your Project
 
 Start by creating or navigating to your project directory:
 
@@ -46,9 +50,10 @@ Select the plugins you want (you can always change this later). sley creates two
 
 ```bash
 cat .version
-# 0.1.0
+# Output: 0.1.0
 
 cat .sley.yaml
+# Output:
 # plugins:
 #   commit-parser: true
 #   tag-manager:
@@ -67,7 +72,12 @@ sley will detect and import the existing version:
 ![sley init --migrate](/screenshots/sley_init_migrate.png)
 :::
 
-## Step 2: Make Your First Commit
+**Success criteria:**
+- ✓ `.version` file created with initial version
+- ✓ `.sley.yaml` configuration file created
+- ✓ Files committed to git (optional but recommended)
+
+### Step 2: Make Your First Commit
 
 Let's create some content and commit it:
 
@@ -79,7 +89,22 @@ git commit -m "feat: initial project setup"
 
 Notice we used a **conventional commit** format (`feat:` prefix). This tells sley that this commit adds a new feature.
 
-## Step 3: Bump Your Version
+**Success criteria:**
+- ✓ Initial files committed to git
+- ✓ Commit message follows conventional format
+
+### Step 3: Understand Version Bump Types
+
+Before bumping, understand what each bump type does:
+
+| Command           | Example       | When to Use                         |
+| ----------------- | ------------- | ----------------------------------- |
+| `sley bump patch` | 0.2.0 → 0.2.1 | Bug fixes, small changes            |
+| `sley bump minor` | 0.2.0 → 0.3.0 | New features (backwards compatible) |
+| `sley bump major` | 0.2.0 → 1.0.0 | Breaking changes                    |
+| `sley bump auto`  | Automatic     | Let commit history decide           |
+
+### Step 4: Bump Your Version
 
 Now bump the version. Since we added a feature, let's bump the minor version:
 
@@ -97,19 +122,15 @@ Check the result:
 
 ```bash
 sley show
-# 0.2.0
+# Output: 0.2.0
 ```
 
-### Version Bump Types
+**Success criteria:**
+- ✓ Version bumped to 0.2.0
+- ✓ `.version` file updated
+- ✓ `sley show` displays new version
 
-| Command           | Example       | When to Use                         |
-| ----------------- | ------------- | ----------------------------------- |
-| `sley bump patch` | 0.2.0 → 0.2.1 | Bug fixes, small changes            |
-| `sley bump minor` | 0.2.0 → 0.3.0 | New features (backwards compatible) |
-| `sley bump major` | 0.2.0 → 1.0.0 | Breaking changes                    |
-| `sley bump auto`  | Automatic     | Let commit history decide           |
-
-## Step 4: Create a Git Tag
+### Step 5: Create a Git Tag
 
 If you enabled `tag-manager`, create and push a git tag:
 
@@ -127,7 +148,7 @@ Verify the tag:
 
 ```bash
 git tag -l
-# v0.2.0
+# Output: v0.2.0
 ```
 
 To create and push in one command:
@@ -136,7 +157,31 @@ To create and push in one command:
 sley tag create --push
 ```
 
-## Step 5: Add Changelog Generation (Optional)
+**Success criteria:**
+- ✓ Git tag created for version
+- ✓ Tag visible in `git tag -l`
+- ✓ Tag pushed to remote (if using `--push`)
+
+### Step 6: Commit Your Version Changes
+
+After bumping, commit your changes:
+
+```bash
+git add .version
+git commit -m "chore: release v0.2.0"
+git push && git push --tags
+```
+
+**Success criteria:**
+- ✓ Version changes committed
+- ✓ Changes pushed to remote
+- ✓ Tags synced with remote
+
+## Optional Enhancements
+
+These steps add changelog generation and automated workflows.
+
+### Step 7: Add Changelog Generation (Optional)
 
 Let's enable changelog generation. Edit `.sley.yaml`:
 
@@ -174,7 +219,12 @@ cat .changes/v0.3.0.md
 - **feat:** add main entry point
 ```
 
-### Merge Changelogs
+**Success criteria:**
+- ✓ Changelog file generated in `.changes/`
+- ✓ Changelog includes recent commits
+- ✓ Changelog formatted correctly
+
+#### Merge Changelogs
 
 When you're ready to consolidate all versioned changelogs:
 
@@ -184,15 +234,25 @@ sley changelog merge
 
 This creates or updates `CHANGELOG.md` with all versions.
 
-## Step 6: Automate with `bump auto`
+**Success criteria:**
+- ✓ `CHANGELOG.md` created or updated
+- ✓ All version changelogs merged
+- ✓ Changelogs ordered by version
+
+### Step 8: Automate with `bump auto` (Optional)
 
 Instead of manually choosing `patch`, `minor`, or `major`, let sley decide based on your commits:
 
 ```bash
 git commit -m "fix: correct typo in README"
 sley bump auto
-# Inferred bump type: patch
-# Bumped version from 0.3.0 to 0.3.1
+```
+
+Output:
+
+```text
+Inferred bump type: patch
+Bumped version from 0.3.0 to 0.3.1
 ```
 
 The `commit-parser` plugin analyzes commits since the last tag:
@@ -201,19 +261,14 @@ The `commit-parser` plugin analyzes commits since the last tag:
 - `fix:` → patch bump
 - `feat!:` or `BREAKING CHANGE:` → major bump
 
-## Step 7: Commit Your Version Changes
+**Success criteria:**
+- ✓ Correct bump type inferred from commits
+- ✓ Version bumped automatically
+- ✓ No manual intervention needed
 
-After bumping, commit your changes:
+## Simplified Workflow
 
-```bash
-git add .version CHANGELOG.md .changes/
-git commit -m "chore: release v0.3.1"
-git push && git push --tags
-```
-
-## Complete Workflow Summary
-
-Here's the typical sley workflow:
+Here's the typical sley workflow once configured:
 
 ```bash
 # 1. Make changes and commit with conventional format
@@ -232,15 +287,39 @@ git commit -m "chore: release $(sley show)"
 git push
 ```
 
+**For manual version control:**
+
+```bash
+# Choose bump type explicitly
+sley bump patch   # or minor, or major
+
+# Rest is the same
+sley tag create --push
+git add .version
+git commit -m "chore: release $(sley show)"
+git push
+```
+
 ## What's Next?
 
 You now have a working sley setup. Explore further:
 
+**Enhance your workflow:**
+
 - [Usage Guide](/guide/usage) - All commands and options
 - [Pre-release Versions](/guide/pre-release) - Alpha, beta, RC workflows
 - [CI/CD Integration](/guide/ci-cd) - Automate in GitHub Actions, GitLab CI
+
+**Configure plugins:**
+
 - [Plugin System](/plugins/) - Configure plugins for your workflow
-- [Monorepo Support](/guide/monorepo) - Manage multiple modules
+- [Dependency Check](/plugins/dependency-check) - Sync versions across files
+- [Tag Manager](/plugins/tag-manager) - Advanced git tagging options
+
+**Manage multiple modules:**
+
+- [Monorepo Support](/guide/monorepo/) - Multi-module version management
+- [Workspace Configuration](/reference/sley-yaml#workspace-configuration) - Configure module discovery
 
 ## Troubleshooting
 
