@@ -54,7 +54,7 @@ export default defineConfig({
 
     // Edit link
     editLink: {
-      pattern: 'https://github.com/indaco/sley-docs/edit/main/docs/:path',
+      pattern: 'https://github.com/indaco/sley-docs/edit/main/pages/:path',
       text: 'Edit this page on GitHub',
     },
 
