@@ -1,9 +1,0 @@
-# extension.yaml
-name: sley-version-sync
-version: 1.0.0
-description: Syncs .version file to the latest sley release from GitHub
-author: indaco
-repository: https://github.com/indaco/sley-docs
-entry: hook.sh
-hooks:
-  - pre-bump

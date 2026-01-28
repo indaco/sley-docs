@@ -2,6 +2,7 @@
 # Documentation: https://github.com/indaco/sley
 
 # Enabled plugins:
+#   - commit-parser
 #   - tag-manager
 #   - dependency-check
 
@@ -20,9 +21,9 @@ plugins:
       - path: package.json
         field: version
         format: json
-
-# Extensions for custom automation
 extensions:
-  - name: sley-version-sync
-    path: ./sley-extensions/sley-version-sync
+  - name: github-version-sync
+    path: .sley-extensions/github-version-sync
     enabled: true
+    config:
+      repo: indaco/sley
