@@ -96,5 +96,5 @@ env | grep SLEY
 - [CLI Reference](/reference/cli) - Complete command reference
 - [Configuration](/config/) - Configuration options and precedence
 - [CI/CD Integration](/guide/ci-cd) - CI/CD-specific solutions
-- [Monorepo Support](/guide/monorepo) - Multi-module troubleshooting
+- [Monorepo Support](/guide/monorepo/) - Multi-module troubleshooting
 - [Plugin System](/plugins/) - Plugin-specific documentation

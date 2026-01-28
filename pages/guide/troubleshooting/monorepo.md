@@ -130,5 +130,5 @@ sley bump patch --all
 ## See Also
 
 - [Troubleshooting Hub](./) - All troubleshooting categories
-- [Monorepo Support](/guide/monorepo) - Monorepo configuration guide
+- [Monorepo Support](/guide/monorepo/) - Monorepo configuration guide
 - [CI/CD Issues](./ci-cd) - CI/CD-specific issues
