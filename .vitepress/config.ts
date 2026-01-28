@@ -19,8 +19,8 @@ export default defineConfig({
   // Source directory for markdown files
   srcDir: 'pages',
 
-  // Use clean URLs (no .html extension)
-  cleanUrls: true,
+  // Use .html on URLs
+  cleanUrls: false,
 
   // Head meta tags
   head: [
