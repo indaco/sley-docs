@@ -66,6 +66,7 @@ export const sidebar: DefaultTheme.Config['sidebar'] = [
       { text: 'Overview', link: '/extensions/' },
       { text: 'Commit Validator', link: '/extensions/commit-validator' },
       { text: 'Docker Tag Sync', link: '/extensions/docker-tag-sync' },
+      { text: 'GitHub Version Sync', link: '/extensions/github-version-sync' },
     ],
   },
   {
