@@ -137,5 +137,5 @@ echo "New version: $NEW"
 - [.sley.yaml Reference](/reference/sley-yaml) - Configuration file reference
 - [CLI Reference](/reference/cli) - Command-line flags
 - [CI/CD Integration](/guide/ci-cd) - Environment variable usage in pipelines
-- [Monorepo Support](/guide/monorepo) - SLEY_PATH with multi-module projects
+- [Monorepo Support](/guide/monorepo/) - SLEY_PATH with multi-module projects
 - [Troubleshooting](/guide/troubleshooting/) - Common environment variable issues

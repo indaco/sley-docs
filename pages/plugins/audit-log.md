@@ -175,6 +175,6 @@ The audit log plugin is **non-blocking**:
 - [Changelog Generator](/plugins/changelog-generator) - Generate changelogs with version history
 - [Tag Manager](/plugins/tag-manager) - Git tag management with metadata
 - [CI/CD Integration](/guide/ci-cd) - Track automated version bumps
-- [Monorepo Support](/guide/monorepo) - Audit logs for multi-module projects
+- [Monorepo Support](/guide/monorepo/) - Audit logs for multi-module projects
 - [.sley.yaml Reference](/reference/sley-yaml) - Audit log configuration
 - [Troubleshooting](/guide/troubleshooting/) - Common logging issues

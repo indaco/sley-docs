@@ -36,4 +36,4 @@ hero:
 
 - [Configuration Reference](/config/) - Configure `.sley.yaml` for your needs
 - [Plugin Guide](/plugins/) - Explore built-in plugins and features
-- [Monorepo Setup](/guide/monorepo) - Manage multiple projects
+- [Monorepo Setup](/guide/monorepo/) - Manage multiple projects

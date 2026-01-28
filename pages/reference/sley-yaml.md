@@ -76,7 +76,7 @@ Most projects use the default `.version` in the project root. Custom paths are u
 
 ## Workspace Configuration
 
-For monorepos with multiple `.version` files. See [Monorepo Support](/guide/monorepo) for a complete guide.
+For monorepos with multiple `.version` files. See [Monorepo Support](/guide/monorepo/) for a complete guide.
 
 ```yaml
 workspace:
@@ -111,7 +111,7 @@ These configurations serve different purposes:
 - **Coordinated versioning**: Submodule `.version` files sync TO the root `.version` file
 - **Single-root**: Only one `.version` file exists (always a source)
 
-See [Understanding Versioning Models](/guide/monorepo#understanding-versioning-models) for detailed guidance.
+See [Understanding Versioning Models](/guide/monorepo/#understanding-versioning-models) for detailed guidance.
 :::
 
 ### When to Use Workspace Configuration
@@ -345,5 +345,5 @@ plugins:
 - [CLI Reference](/reference/cli) - Command-line options
 - [Plugin System](/plugins/) - Detailed plugin configuration
 - [Extension System](/extensions/) - Extension configuration and hooks
-- [Monorepo Support](/guide/monorepo) - Multi-module setup guide
+- [Monorepo Support](/guide/monorepo/) - Multi-module setup guide
 - [Troubleshooting](/guide/troubleshooting/) - Common configuration issues
