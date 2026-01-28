@@ -124,7 +124,7 @@ sley bump patch --all
 # - Single-root: Syncs manifest files to .version
 # - Coordinated versioning: Syncs both manifest files AND submodule .version files to root
 # - Independent versioning (workspace): Each module manages its own .version
-# See: /guide/monorepo#understanding-versioning-models
+# See: /guide/monorepo/versioning-models
 ```
 
 ## See Also

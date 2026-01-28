@@ -10,7 +10,16 @@ export const sidebar: DefaultTheme.Config['sidebar'] = [
       { text: 'Installation', link: '/guide/installation' },
       { text: 'Usage', link: '/guide/usage' },
       { text: 'Pre-release Versions', link: '/guide/pre-release' },
-      { text: 'Monorepo Support', link: '/guide/monorepo' },
+      {
+        text: 'Monorepo Support',
+        link: '/guide/monorepo/',
+        collapsed: true,
+        items: [
+          { text: 'Versioning Models', link: '/guide/monorepo/versioning-models' },
+          { text: 'Configuration', link: '/guide/monorepo/configuration' },
+          { text: 'Workflows', link: '/guide/monorepo/workflows' },
+        ],
+      },
       { text: 'CI/CD Integration', link: '/guide/ci-cd' },
       {
         text: 'Troubleshooting',
