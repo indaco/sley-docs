@@ -11,21 +11,21 @@ head:
 
 ## Quick Reference
 
-| Command | Purpose | Example |
-| --- | --- | --- |
-| `sley init` | Initialize project with .version | `sley init --migrate` |
-| `sley discover` | Auto-discover version sources | `sley discover --format json` |
-| `sley show` | Display current version | `sley show --all` |
-| `sley set` | Set version manually | `sley set 2.0.0 --pre beta` |
-| `sley bump` | Increment version | `sley bump patch` |
-| `sley bump pre` | Increment pre-release | `sley bump pre --label beta` |
-| `sley bump auto` | Smart version bump | `sley bump auto` |
-| `sley bump release` | Remove pre-release | `sley bump release` |
-| `sley pre` | Set pre-release label | `sley pre --label alpha --inc` |
-| `sley validate` | Validate .version file | `sley validate --strict` |
-| `sley doctor` | Validate config and version | `sley doctor --all` |
-| `sley tag` | Manage git tags | `sley tag create --push` |
-| `sley changelog` | Manage changelogs | `sley changelog merge` |
+| Command             | Purpose                          | Example                        |
+| ------------------- | -------------------------------- | ------------------------------ |
+| `sley init`         | Initialize project with .version | `sley init --migrate`          |
+| `sley discover`     | Auto-discover version sources    | `sley discover --format json`  |
+| `sley show`         | Display current version          | `sley show --all`              |
+| `sley set`          | Set version manually             | `sley set 2.0.0 --pre beta`    |
+| `sley bump`         | Increment version                | `sley bump patch`              |
+| `sley bump pre`     | Increment pre-release            | `sley bump pre --label beta`   |
+| `sley bump auto`    | Smart version bump               | `sley bump auto`               |
+| `sley bump release` | Remove pre-release               | `sley bump release`            |
+| `sley pre`          | Set pre-release label            | `sley pre --label alpha --inc` |
+| `sley validate`     | Validate .version file           | `sley validate --strict`       |
+| `sley doctor`       | Validate config and version      | `sley doctor --all`            |
+| `sley tag`          | Manage git tags                  | `sley tag create --push`       |
+| `sley changelog`    | Manage changelogs                | `sley changelog merge`         |
 
 ## Project Setup
 

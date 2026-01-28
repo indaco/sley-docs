@@ -73,6 +73,7 @@ sley will detect and import the existing version:
 :::
 
 **Success criteria:**
+
 - ✓ `.version` file created with initial version
 - ✓ `.sley.yaml` configuration file created
 - ✓ Files committed to git (optional but recommended)
@@ -90,6 +91,7 @@ git commit -m "feat: initial project setup"
 Notice we used a **conventional commit** format (`feat:` prefix). This tells sley that this commit adds a new feature.
 
 **Success criteria:**
+
 - ✓ Initial files committed to git
 - ✓ Commit message follows conventional format
 
@@ -126,6 +128,7 @@ sley show
 ```
 
 **Success criteria:**
+
 - ✓ Version bumped to 0.2.0
 - ✓ `.version` file updated
 - ✓ `sley show` displays new version
@@ -158,6 +161,7 @@ sley tag create --push
 ```
 
 **Success criteria:**
+
 - ✓ Git tag created for version
 - ✓ Tag visible in `git tag -l`
 - ✓ Tag pushed to remote (if using `--push`)
@@ -173,6 +177,7 @@ git push && git push --tags
 ```
 
 **Success criteria:**
+
 - ✓ Version changes committed
 - ✓ Changes pushed to remote
 - ✓ Tags synced with remote
@@ -220,6 +225,7 @@ cat .changes/v0.3.0.md
 ```
 
 **Success criteria:**
+
 - ✓ Changelog file generated in `.changes/`
 - ✓ Changelog includes recent commits
 - ✓ Changelog formatted correctly
@@ -235,6 +241,7 @@ sley changelog merge
 This creates or updates `CHANGELOG.md` with all versions.
 
 **Success criteria:**
+
 - ✓ `CHANGELOG.md` created or updated
 - ✓ All version changelogs merged
 - ✓ Changelogs ordered by version
@@ -262,6 +269,7 @@ The `commit-parser` plugin analyzes commits since the last tag:
 - `feat!:` or `BREAKING CHANGE:` → major bump
 
 **Success criteria:**
+
 - ✓ Correct bump type inferred from commits
 - ✓ Version bumped automatically
 - ✓ No manual intervention needed

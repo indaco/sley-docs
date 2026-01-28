@@ -13,6 +13,7 @@ Manage multiple `.version` files across a monorepo or multi-module project.
 
 ::: tip What You'll Learn
 This guide helps you choose the right versioning strategy for your project:
+
 - **Single-Root**: One version for a single app/library with multiple manifests
 - **Coordinated Versioning**: One version across multiple modules that release together
 - **Independent Versioning**: Different versions for modules that release independently
@@ -34,18 +35,19 @@ By the end, you'll know which model fits your needs and how to get started.
 
 `sley` supports **three versioning models** for managing versions in projects with multiple modules:
 
-| Model                        | `.version` Files      | Version Strategy                           | Use Case                                           |
-| ---------------------------- | --------------------- | ------------------------------------------ | -------------------------------------------------- |
-| **Single-Root**              | One (at root)         | One version for everything                 | Single app/library with multiple manifest files    |
-| **Coordinated Versioning**   | Multiple (synced)     | One version everywhere (submodules sync)   | Multiple modules that always release together      |
-| **Independent Versioning**   | Multiple (independent)| Each module has its own version            | Monorepo with modules released independently       |
+| Model                      | `.version` Files       | Version Strategy                         | Use Case                                        |
+| -------------------------- | ---------------------- | ---------------------------------------- | ----------------------------------------------- |
+| **Single-Root**            | One (at root)          | One version for everything               | Single app/library with multiple manifest files |
+| **Coordinated Versioning** | Multiple (synced)      | One version everywhere (submodules sync) | Multiple modules that always release together   |
+| **Independent Versioning** | Multiple (independent) | Each module has its own version          | Monorepo with modules released independently    |
 
 ::: tip Quick Check
 Run `sley discover` in your project root. If multiple `.version` files are found, you'll be prompted to choose your versioning strategy:
+
 - **Coordinated versioning** - Keep one version, sync all `.version` files to root
 - **Independent versioning** - Each module versions independently (workspace mode)
 - **Single root** - Keep only root `.version`, ignore submodule ones
-:::
+  :::
 
 ## Choosing Your Versioning Model
 
@@ -73,13 +75,13 @@ Do you have multiple .version files?
 
 ### Decision Guide
 
-| Question                                       | Answer       | Recommended Model          |
-| ---------------------------------------------- | ------------ | -------------------------- |
-| Do you have multiple `.version` files?         | No           | **Single-Root**            |
-| All modules always release together?           | Yes          | **Coordinated Versioning** |
-| Modules released independently?                | Yes          | **Independent Versioning** |
-| Need `.version` files for technical reasons?   | Yes          | **Coordinated Versioning** |
-| (e.g., Go embed, Vite plugins)                 |              |                            |
+| Question                                     | Answer | Recommended Model          |
+| -------------------------------------------- | ------ | -------------------------- |
+| Do you have multiple `.version` files?       | No     | **Single-Root**            |
+| All modules always release together?         | Yes    | **Coordinated Versioning** |
+| Modules released independently?              | Yes    | **Independent Versioning** |
+| Need `.version` files for technical reasons? | Yes    | **Coordinated Versioning** |
+| (e.g., Go embed, Vite plugins)               |        |                            |
 
 ## Quick Start Commands
 
@@ -113,16 +115,19 @@ sley bump patch  # Syncs automatically via dependency-check
 ::: tip Explore Further
 
 **Ready to implement?** Jump to configuration and workflows:
+
 - [Configuration Examples](/guide/monorepo/configuration) - Complete setup for each model
 - [Practical Workflows](/guide/monorepo/workflows) - Real-world usage examples
 
 **Want to understand deeply?** Start with concepts:
+
 - [Versioning Models Deep Dive](/guide/monorepo/versioning-models) - How each model works internally
 
 **Need specific help?**
+
 - [CLI Reference](/reference/cli#bump) - Complete command documentation
 - [Troubleshooting](/guide/troubleshooting/) - Common issues and solutions
-:::
+  :::
 
 ## Module Discovery
 

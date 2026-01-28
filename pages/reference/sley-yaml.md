@@ -107,6 +107,7 @@ These configurations serve different purposes:
 - **`dependency-check`** - Syncs files TO a `.version` file (manifest files and, in coordinated versioning, submodule `.version` files)
 
 **Important:** The role of `.version` files depends on your versioning model:
+
 - **Independent versioning** (workspace): Each `.version` file is a source of truth
 - **Coordinated versioning**: Submodule `.version` files sync TO the root `.version` file
 - **Single-root**: Only one `.version` file exists (always a source)
@@ -116,13 +117,13 @@ See [Understanding Versioning Models](/guide/monorepo/#understanding-versioning-
 
 ### When to Use Workspace Configuration
 
-| Scenario                                   | Use Workspace? | Recommended Model                          |
-| ------------------------------------------ | -------------- | ------------------------------------------ |
-| Multiple independently-versioned modules   | Yes            | Independent versioning (workspace)         |
-| Monorepo with packages released separately | Yes            | Independent versioning (workspace)         |
-| Multiple `.version` files, same version    | No             | Coordinated versioning (`dependency-check`)|
-| Single module with multiple manifest files | No             | Single-root (`dependency-check`)           |
-| All files share the same version           | No             | Single-root or coordinated versioning      |
+| Scenario                                   | Use Workspace? | Recommended Model                           |
+| ------------------------------------------ | -------------- | ------------------------------------------- |
+| Multiple independently-versioned modules   | Yes            | Independent versioning (workspace)          |
+| Monorepo with packages released separately | Yes            | Independent versioning (workspace)          |
+| Multiple `.version` files, same version    | No             | Coordinated versioning (`dependency-check`) |
+| Single module with multiple manifest files | No             | Single-root (`dependency-check`)            |
+| All files share the same version           | No             | Single-root or coordinated versioning       |
 
 ### Discovery Options
 

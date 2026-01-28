@@ -219,7 +219,7 @@ workspace:
 # .sley.yaml (root)
 workspace:
   discovery:
-    enabled: false  # Disable auto-discovery
+    enabled: false # Disable auto-discovery
 
   modules:
     - name: api
@@ -236,7 +236,7 @@ workspace:
 
     - name: legacy
       path: ./legacy/.version
-      enabled: false  # Skip this module
+      enabled: false # Skip this module
 ```
 
 ### Workspace with Auto-Discovery and Exclusions
@@ -385,7 +385,7 @@ workspace:
   discovery:
     enabled: true
     recursive: true
-    module_max_depth: 15  # Allow deep nesting
+    module_max_depth: 15 # Allow deep nesting
     manifest_max_depth: 3
     exclude:
       - "testdata"
@@ -427,11 +427,13 @@ workspace:
 ### Choosing Between Auto-Discovery and Explicit Modules
 
 **Use auto-discovery when:**
+
 - Your modules follow a consistent directory structure
 - You add/remove modules frequently
 - You want minimal configuration maintenance
 
 **Use explicit modules when:**
+
 - You have modules in non-standard locations
 - You need to disable specific modules
 - You want complete control over which modules are managed
@@ -449,8 +451,8 @@ workspace:
 workspace:
   discovery:
     enabled: true
-    module_max_depth: 8    # Reduce if .version files are shallow
-    manifest_max_depth: 2  # Reduce if manifests are close to modules
+    module_max_depth: 8 # Reduce if .version files are shallow
+    manifest_max_depth: 2 # Reduce if manifests are close to modules
 
     # Use specific exclusions to skip large directories
     exclude:

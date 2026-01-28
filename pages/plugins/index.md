@@ -137,18 +137,19 @@ The execution flow above shows the complete `bump` command flow. Not all command
 
 Different sley commands trigger different subsets of plugins:
 
-| Plugin               | Commands That Trigger It    |
-| -------------------- | --------------------------- |
-| dependency-check     | `bump *`, `pre`, `set`      |
-| release-gate         | `bump *` only               |
-| version-validator    | `bump *` only               |
-| tag-manager          | `bump *` only               |
-| changelog-generator  | `bump *` only               |
-| audit-log            | `bump *` only               |
-| commit-parser        | `bump auto` only            |
-| changelog-parser     | `bump auto` only            |
+| Plugin              | Commands That Trigger It |
+| ------------------- | ------------------------ |
+| dependency-check    | `bump *`, `pre`, `set`   |
+| release-gate        | `bump *` only            |
+| version-validator   | `bump *` only            |
+| tag-manager         | `bump *` only            |
+| changelog-generator | `bump *` only            |
+| audit-log           | `bump *` only            |
+| commit-parser       | `bump auto` only         |
+| changelog-parser    | `bump auto` only         |
 
 **Command notes:**
+
 - `bump *` includes all bump variants: `bump major`, `bump minor`, `bump patch`, `bump auto`
 - `pre` command triggers only `dependency-check` for syncing pre-release versions
 - `set` command triggers only `dependency-check` for syncing explicitly set versions

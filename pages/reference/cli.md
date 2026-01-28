@@ -597,10 +597,10 @@ Install an extension from a remote repository or local path.
 sley extension install [options]
 ```
 
-| Option            | Description                                                       |
-| ----------------- | ----------------------------------------------------------------- |
-| `--url`           | Git repository URL with optional subdirectory (GitHub, GitLab)    |
-| `--path`          | Local filesystem path (absolute or relative)                      |
+| Option            | Description                                                      |
+| ----------------- | ---------------------------------------------------------------- |
+| `--url`           | Git repository URL with optional subdirectory (GitHub, GitLab)   |
+| `--path`          | Local filesystem path (absolute or relative)                     |
 | `--extension-dir` | Directory to store extensions in (default: `~/.sley-extensions`) |
 
 ::: warning
@@ -638,10 +638,11 @@ sley extension install --url github.com/indaco/sley/contrib/extensions/docker-ta
 
 ::: tip Subdirectory Support
 The subdirectory feature is perfect for:
+
 - Monorepos containing multiple extensions
 - Projects with extensions in a `contrib/` or `extensions/` directory
 - Sharing extensions without creating separate repositories
-:::
+  :::
 
 #### `extension list`
 
@@ -693,8 +694,8 @@ Enable a previously disabled extension.
 sley extension enable --name <extension-name>
 ```
 
-| Option   | Description                            |
-| -------- | -------------------------------------- |
+| Option   | Description                                |
+| -------- | ------------------------------------------ |
 | `--name` | Name of the extension to enable (required) |
 
 Sets `enabled: true` in `.sley.yaml` for the specified extension. The extension entry and directory remain untouched. Use this to reactivate an extension that was previously disabled without needing to reinstall it.
@@ -717,8 +718,8 @@ Disable an extension without uninstalling it.
 sley extension disable --name <extension-name>
 ```
 
-| Option   | Description                             |
-| -------- | --------------------------------------- |
+| Option   | Description                                 |
+| -------- | ------------------------------------------- |
 | `--name` | Name of the extension to disable (required) |
 
 Sets `enabled: false` in `.sley.yaml` for the specified extension. The extension entry and directory remain untouched. This is useful for temporarily turning off an extension without losing its configuration or removing it entirely.

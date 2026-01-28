@@ -74,6 +74,7 @@ Multi-module projects where all components release together with the same versio
 ### Why you need this
 
 Some tools require version information in specific locations:
+
 - **Go `//go:embed`**: Requires `.version` file in the same directory
 - **Vite plugins**: Often read from local `.version` for build-time injection
 - **Docker builds**: May need version files in specific service directories

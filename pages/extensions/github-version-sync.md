@@ -211,11 +211,11 @@ When the extension fails, the version bump is blocked to prevent inconsistent st
 
 ## Troubleshooting
 
-| Issue                                 | Solution                                                            |
-| ------------------------------------- | ------------------------------------------------------------------- |
-| "GitHub API rate limit exceeded"      | Set `github-token` with a GitHub personal access token              |
-| "Repository not found or no releases" | Check repo format is `owner/repo`, ensure releases exist            |
-| "Version not changing"                | Ensure `commit-parser: false` is set                                |
+| Issue                                 | Solution                                                                         |
+| ------------------------------------- | -------------------------------------------------------------------------------- |
+| "GitHub API rate limit exceeded"      | Set `github-token` with a GitHub personal access token                           |
+| "Repository not found or no releases" | Check repo format is `owner/repo`, ensure releases exist                         |
+| "Version not changing"                | Ensure `commit-parser: false` is set                                             |
 | JSON parsing issues                   | Install `jq` or `jaq` for robust parsing: `brew install jq` / `brew install jaq` |
 
 ### "GitHub API rate limit exceeded"

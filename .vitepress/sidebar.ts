@@ -15,7 +15,10 @@ export const sidebar: DefaultTheme.Config['sidebar'] = [
         link: '/guide/monorepo/',
         collapsed: true,
         items: [
-          { text: 'Versioning Models', link: '/guide/monorepo/versioning-models' },
+          {
+            text: 'Versioning Models',
+            link: '/guide/monorepo/versioning-models',
+          },
           { text: 'Configuration', link: '/guide/monorepo/configuration' },
           { text: 'Workflows', link: '/guide/monorepo/workflows' },
         ],
