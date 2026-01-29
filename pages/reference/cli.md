@@ -63,7 +63,7 @@ Recursively scans the project tree for:
 - `.version` files (sley modules in subdirectories)
 - Manifest files (package.json, Cargo.toml, pyproject.toml, Chart.yaml, etc.)
 
-The command now performs a deep scan of the entire project structure up to the specified depth limit, making it ideal for discovering all version sources in complex monorepos.
+The command performs a deep scan of the entire project structure up to the specified depth limit.
 
 | Option             | Description                                        |
 | ------------------ | -------------------------------------------------- |
