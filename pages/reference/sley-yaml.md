@@ -21,6 +21,9 @@ For an overview of configuration methods and precedence, see [Configuration](/co
 # Path to .version file
 path: .version
 
+# TUI theme (optional)
+theme: sley
+
 # Workspace configuration (monorepos only)
 workspace:
   discovery:
@@ -42,12 +45,13 @@ extensions:
 
 ## Top-Level Options
 
-| Option       | Type   | Default    | Description                      |
-| ------------ | ------ | ---------- | -------------------------------- |
-| `path`       | string | `.version` | Path to the .version file        |
-| `workspace`  | object | `{}`       | Workspace/monorepo configuration |
-| `plugins`    | object | `{}`       | Plugin configuration             |
-| `extensions` | array  | `[]`       | Extension configuration          |
+| Option       | Type   | Default    | Description                       |
+| ------------ | ------ | ---------- | --------------------------------- |
+| `path`       | string | `.version` | Path to the .version file         |
+| `theme`      | string | `sley`     | TUI theme for interactive prompts |
+| `workspace`  | object | `{}`       | Workspace/monorepo configuration  |
+| `plugins`    | object | `{}`       | Plugin configuration              |
+| `extensions` | array  | `[]`       | Extension configuration           |
 
 ## Path Configuration
 
@@ -72,6 +76,41 @@ path: ./config/.version
 
 ::: tip
 Most projects use the default `.version` in the project root. Custom paths are useful when integrating with existing version file conventions.
+:::
+
+## Theme Configuration
+
+The `theme` option customizes the appearance of interactive TUI elements:
+
+```yaml
+theme: sley      # default
+theme: catppuccin
+theme: dracula
+```
+
+**Available themes**: `sley` (default), `base`, `base16`, `catppuccin`, `charm`, `dracula`
+
+All themes except `sley` are provided by [charmbracelet/huh](https://github.com/charmbracelet/huh).
+
+::: tip Configuration Priority
+The theme can be configured in multiple ways with the following priority order:
+
+1. **CLI flag** (highest): `--theme <name>`
+2. **Environment variable**: `SLEY_THEME=<name>`
+3. **Config file**: `theme: <name>` in `.sley.yaml`
+4. **Default** (lowest): `sley`
+
+Example:
+
+```bash
+# Override config file theme for a single command
+sley --theme dracula bump minor
+
+# Set theme for current session
+export SLEY_THEME=catppuccin
+sley bump patch
+```
+
 :::
 
 ## Workspace Configuration
@@ -207,6 +246,7 @@ Find individual plugin configuration examples in the [sley repository examples d
 # All plugins working together
 
 path: .version
+theme: sley
 
 plugins:
   # Commit Parser (enabled by default)

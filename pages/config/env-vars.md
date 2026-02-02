@@ -13,11 +13,12 @@ sley supports configuration through environment variables. Environment variables
 
 ## Available Variables
 
-| Variable    | Description                                 | Default    |
-| ----------- | ------------------------------------------- | ---------- |
-| `SLEY_PATH` | Path to the .version file                   | `.version` |
-| `CI`        | Enables CI mode (disables interactive mode) | -          |
-| `NO_COLOR`  | Disables colored output                     | -          |
+| Variable     | Description                                 | Default    |
+| ------------ | ------------------------------------------- | ---------- |
+| `SLEY_PATH`  | Path to the .version file                   | `.version` |
+| `SLEY_THEME` | TUI theme for interactive prompts           | `sley`     |
+| `CI`         | Enables CI mode (disables interactive mode) | -          |
+| `NO_COLOR`   | Disables colored output                     | -          |
 
 ## SLEY_PATH
 
@@ -34,6 +35,28 @@ This is equivalent to using the `--path` flag:
 ```bash
 sley show --path ./my-folder/.version
 ```
+
+## SLEY_THEME
+
+Specify a custom TUI theme for interactive prompts:
+
+```bash
+export SLEY_THEME=catppuccin
+sley bump
+# => Uses catppuccin theme for interactive prompts
+```
+
+This is equivalent to using the `--theme` flag:
+
+```bash
+sley bump --theme catppuccin
+```
+
+**Available themes**: `sley` (default), `base`, `base16`, `catppuccin`, `charm`, `dracula`
+
+::: tip Theme Configuration
+For complete theme details and configuration priority order, see [Theme Configuration](/reference/sley-yaml#theme-configuration).
+:::
 
 ## CI Mode
 
@@ -104,8 +127,13 @@ export SLEY_PATH=./packages/core/.version
 sley show
 sley bump patch
 
+# Set theme preference
+export SLEY_THEME=dracula
+sley bump minor
+
 # Or use .env file with direnv
 echo 'export SLEY_PATH=./packages/core/.version' >> .envrc
+echo 'export SLEY_THEME=catppuccin' >> .envrc
 direnv allow
 ```
 

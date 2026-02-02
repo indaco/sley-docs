@@ -26,10 +26,13 @@ sley [global options] [command [command options]]
 | Option                       | Description                                                    |
 | ---------------------------- | -------------------------------------------------------------- |
 | `--path`, `-p` `<string>`    | Path to .version file (default: `.version`)                    |
+| `--theme` `<string>`         | TUI theme for interactive prompts (default: `sley`)            |
 | `--strict`, `--no-auto-init` | Fail if .version file is missing (disable auto-initialization) |
 | `--no-color`                 | Disable colored output                                         |
 | `--help`, `-h`               | Show help                                                      |
 | `--version`, `-v`            | Print the version                                              |
+
+**Available themes**: `sley` (default), `base`, `base16`, `catppuccin`, `charm`, `dracula` - see [Theme Configuration](/reference/sley-yaml#theme-configuration) for details.
 
 ## Commands
 
