@@ -45,12 +45,12 @@ You'll see an interactive TUI to select plugins and configure your project:
 
 Select the plugins you want (you can always change this later). sley creates two files:
 
-- **`.version`** - Contains your version number (e.g., `0.1.0`)
+- **`.version`** - Contains your version number (e.g., `0.0.0`)
 - **`.sley.yaml`** - Configuration file for plugins
 
 ```bash
 cat .version
-# Output: 0.1.0
+# Output: 0.0.0
 
 cat .sley.yaml
 # Output:
@@ -117,19 +117,19 @@ sley bump minor
 Output:
 
 ```text
-Bumped version from 0.1.0 to 0.2.0
+Bumped version from 0.0.0 to 0.1.0
 ```
 
 Check the result:
 
 ```bash
 sley show
-# Output: 0.2.0
+# Output: 0.1.0
 ```
 
 **Success criteria:**
 
-- ✓ Version bumped to 0.2.0
+- ✓ Version bumped to 0.1.0
 - ✓ `.version` file updated
 - ✓ `sley show` displays new version
 
@@ -144,14 +144,14 @@ sley tag create
 Output:
 
 ```text
-Created tag v0.2.0
+Created tag v0.1.0
 ```
 
 Verify the tag:
 
 ```bash
 git tag -l
-# Output: v0.2.0
+# Output: v0.1.0
 ```
 
 To create and push in one command:
@@ -172,7 +172,7 @@ After bumping, commit your changes:
 
 ```bash
 git add .version
-git commit -m "chore: release v0.2.0"
+git commit -m "chore: release v0.1.0"
 git push && git push --tags
 ```
 
@@ -213,11 +213,11 @@ sley bump minor
 sley now generates a changelog file:
 
 ```bash
-cat .changes/v0.3.0.md
+cat .changes/v0.2.0.md
 ```
 
 ```markdown
-## v0.3.0 - 2024-01-15
+## v0.2.0 - 2024-01-15
 
 ### Enhancements
 
@@ -259,7 +259,7 @@ Output:
 
 ```text
 Inferred bump type: patch
-Bumped version from 0.3.0 to 0.3.1
+Bumped version from 0.2.0 to 0.2.1
 ```
 
 The `commit-parser` plugin analyzes commits since the last tag:

@@ -34,7 +34,7 @@ If the `.version` file does not exist when running the CLI:
 
 1. It tries to read the latest Git tag via `git describe --tags`
 2. If the tag is a valid semantic version, it is used
-3. Otherwise, the file is initialized to `0.1.0`
+3. Otherwise, the file is initialized to `0.0.0`
 
 This ensures your project always has a starting point.
 

@@ -59,7 +59,7 @@ For CI/CD pipelines or scripted setups, use the `--yes` flag to skip prompts:
 # Use sensible defaults (commit-parser, tag-manager)
 sley init --yes
 # Output:
-#   Created .version with version 0.1.0
+#   Created .version with version 0.0.0
 #   Created .sley.yaml with default plugins (commit-parser, tag-manager)
 
 # Use a pre-configured template

@@ -143,7 +143,7 @@ git tag -l
 
 # If no version source exists, use init without --migrate
 sley init
-sley set 0.1.0
+sley set 0.0.0
 ```
 
 ### `Error: multiple version sources detected`

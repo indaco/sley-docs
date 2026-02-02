@@ -22,7 +22,7 @@ This page covers common issues related to the `.version` file.
 sley init
 
 # Option 2: Create the file manually
-echo "0.1.0" > .version
+echo "0.0.0" > .version
 
 # Option 3: Use --path flag to specify custom location
 sley show --path ./custom/.version
@@ -92,7 +92,7 @@ chmod 755 .
 
 ```bash
 # Set an initial version
-sley set 0.1.0
+sley set 0.0.0
 
 # Or initialize from existing version source
 sley init --migrate
