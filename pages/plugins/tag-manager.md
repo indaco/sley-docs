@@ -160,8 +160,7 @@ sley tag delete v1.2.3 --remote  # Also delete from remote
 sley bump minor
 # => 1.3.0 (no tag created with auto-create: false)
 
-# 2. Generate/update changelog
-sley changelog generate
+# 2. Merge changelog (if using changelog-generator plugin)
 sley changelog merge
 
 # 3. Commit all changes
