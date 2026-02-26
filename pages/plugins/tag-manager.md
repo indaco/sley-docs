@@ -43,8 +43,14 @@ With just `enabled: true`, you get access to the `sley tag` commands for manual 
 With both `enabled: true` and `auto-create: true`, the plugin integrates with the bump workflow:
 
 1. **Before bump**: validates that the target tag doesn't already exist (fail-fast)
-2. **After bump**: automatically creates a git tag for the new version
-3. Optionally pushes the tag to the remote repository
+2. **After bump**: runs post-bump actions (changelog, dependency sync, etc.)
+3. **Commit**: stages and commits all bump-modified files using the `commit-message-template`
+4. **Tag**: creates a git tag pointing to the release commit
+5. Optionally pushes the tag to the remote repository
+
+::: info
+In automatic mode, sley commits all bump-modified files before creating the tag, ensuring the tag points to the correct release commit.
+:::
 
 ## Configuration
 
@@ -58,29 +64,42 @@ View the [tag-manager.yaml example](https://github.com/indaco/sley/blob/main/doc
 plugins:
   tag-manager:
     enabled: true
-    auto-create: true # Set to true for automatic tagging during bump
+
+    # Tag settings
     prefix: "v"
     annotate: true
+    # Set to true to also tag pre-releases
+    tag-prereleases: false
+
+    # Automatic tagging during bump
+    auto-create: true
     push: false
-    tag-prereleases: true # Set to true to also tag pre-releases
-    sign: false # Set to true to create GPG-signed tags
-    signing-key: "" # Optional GPG key ID (uses git default if empty)
-    message-template: "Release {version}" # Custom tag message template
+    # Commit message before tagging
+    commit-message-template: "chore(release): {tag}"
+
+    # Tag message
+    message-template: "Release {version}"
+
+    # GPG signing (optional)
+    sign: false
+    # Optional GPG key ID (uses git default if empty)
+    signing-key: ""
 ```
 
 ### Configuration Options
 
-| Option             | Type   | Default               | Description                                          |
-| ------------------ | ------ | --------------------- | ---------------------------------------------------- |
-| `enabled`          | bool   | false                 | Enable the plugin (required for `sley tag` commands) |
-| `auto-create`      | bool   | false                 | Automatically validate and create tags during bumps  |
-| `prefix`           | string | `"v"`                 | Prefix for tag names                                 |
-| `annotate`         | bool   | true                  | Create annotated tags (vs lightweight)               |
-| `push`             | bool   | false                 | Push tags to remote after creation                   |
-| `tag-prereleases`  | bool   | false                 | Create tags for pre-release versions                 |
-| `sign`             | bool   | false                 | Create GPG-signed tags (implies annotated)           |
-| `signing-key`      | string | `""`                  | GPG key ID for signing (uses git default if empty)   |
-| `message-template` | string | `"Release {version}"` | Template for tag message with placeholders           |
+| Option                    | Type   | Default                   | Description                                                               |
+| ------------------------- | ------ | ------------------------- | ------------------------------------------------------------------------- |
+| `enabled`                 | bool   | false                     | Enable the plugin (required for `sley tag` commands)                      |
+| `prefix`                  | string | `"v"`                     | Prefix for tag names                                                      |
+| `annotate`                | bool   | true                      | Create annotated tags (vs lightweight)                                    |
+| `tag-prereleases`         | bool   | false                     | Create tags for pre-release versions                                      |
+| `auto-create`             | bool   | false                     | Automatically validate and create tags during bumps                       |
+| `push`                    | bool   | false                     | Push tags to remote after creation                                        |
+| `commit-message-template` | string | `"chore(release): {tag}"` | Template for the commit message created before tagging (auto-create only) |
+| `message-template`        | string | `"Release {version}"`     | Template for tag message with placeholders                                |
+| `sign`                    | bool   | false                     | Create GPG-signed tags (implies annotated)                                |
+| `signing-key`             | string | `""`                      | GPG key ID for signing (uses git default if empty)                        |
 
 ### Pre-release Tagging Behavior
 
@@ -116,6 +135,18 @@ Available placeholders:
 | `{patch}`      | Patch version number                     | `3`              |
 | `{prerelease}` | Pre-release identifier (empty if stable) | `alpha.1`        |
 | `{build}`      | Build metadata (empty if none)           | `build.123`      |
+
+### Commit Message Template
+
+When `auto-create: true`, sley commits all bump-modified files before creating the tag. The `commit-message-template` option controls the commit message for that commit. It supports the same placeholders as `message-template`.
+
+```yaml
+plugins:
+  tag-manager:
+    enabled: true
+    auto-create: true
+    commit-message-template: "release: {version} [{date}]"
+```
 
 ## Tag Formats
 
@@ -213,7 +244,7 @@ plugins:
     push: true
 ```
 
-Flow (with `auto-create: true`): commit-parser analyzes -> tag-manager validates -> version updated -> tag created and pushed
+Flow (with `auto-create: true`): commit-parser analyzes -> tag-manager validates -> version updated -> changes committed -> tag created and pushed
 
 ## Best Practices
 
