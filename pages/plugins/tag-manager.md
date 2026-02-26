@@ -9,16 +9,21 @@ head:
 
 # {{ $frontmatter.title }}
 
-The tag manager plugin automatically creates and manages git tags synchronized with version bumps. It validates tag availability before bumping and creates tags after successful version updates.
+The tag manager plugin provides git tag management for your version workflow. It supports both manual tagging via `sley tag` commands and automatic tagging during version bumps.
 
 <PluginMeta :enabled="false" type="automation">
 While disabled by default, tag-manager is included in the recommended configuration created by <code>sley init --yes</code>.
 </PluginMeta>
 
+::: warning Required for `sley tag` commands
+All `sley tag` subcommands (`create`, `list`, `push`, `delete`) require `enabled: true`. Without it, commands will fail with an error.
+:::
+
 ## Features
 
-- Automatic git tag creation after version bumps
-- Pre-bump validation to ensure tag doesn't already exist
+- Manual tag management via `sley tag` commands
+- Automatic git tag creation after version bumps (with `auto-create: true`)
+- Pre-bump validation to ensure tag doesn't already exist (with `auto-create: true`)
 - Configurable tag prefix (`v`, `release-`, or custom)
 - Support for annotated and lightweight tags
 - GPG signing support for signed tags
@@ -27,8 +32,18 @@ While disabled by default, tag-manager is included in the recommended configurat
 
 ## How It Works
 
-1. Before bump: validates that the target tag doesn't already exist (fail-fast)
-2. After bump: creates a git tag for the new version
+The plugin operates in two modes depending on the `auto-create` setting:
+
+### Manual mode (`auto-create: false`, default)
+
+With just `enabled: true`, you get access to the `sley tag` commands for manual tag management. Version bumps are not affected — no tag validation or creation happens during `sley bump`.
+
+### Automatic mode (`auto-create: true`)
+
+With both `enabled: true` and `auto-create: true`, the plugin integrates with the bump workflow:
+
+1. **Before bump**: validates that the target tag doesn't already exist (fail-fast)
+2. **After bump**: automatically creates a git tag for the new version
 3. Optionally pushes the tag to the remote repository
 
 ## Configuration
@@ -55,17 +70,17 @@ plugins:
 
 ### Configuration Options
 
-| Option             | Type   | Default               | Description                                        |
-| ------------------ | ------ | --------------------- | -------------------------------------------------- |
-| `enabled`          | bool   | false                 | Enable/disable the plugin                          |
-| `auto-create`      | bool   | false                 | Automatically create tags after bumps              |
-| `prefix`           | string | `"v"`                 | Prefix for tag names                               |
-| `annotate`         | bool   | true                  | Create annotated tags (vs lightweight)             |
-| `push`             | bool   | false                 | Push tags to remote after creation                 |
-| `tag-prereleases`  | bool   | false                 | Create tags for pre-release versions               |
-| `sign`             | bool   | false                 | Create GPG-signed tags (implies annotated)         |
-| `signing-key`      | string | `""`                  | GPG key ID for signing (uses git default if empty) |
-| `message-template` | string | `"Release {version}"` | Template for tag message with placeholders         |
+| Option             | Type   | Default               | Description                                          |
+| ------------------ | ------ | --------------------- | ---------------------------------------------------- |
+| `enabled`          | bool   | false                 | Enable the plugin (required for `sley tag` commands) |
+| `auto-create`      | bool   | false                 | Automatically validate and create tags during bumps  |
+| `prefix`           | string | `"v"`                 | Prefix for tag names                                 |
+| `annotate`         | bool   | true                  | Create annotated tags (vs lightweight)               |
+| `push`             | bool   | false                 | Push tags to remote after creation                   |
+| `tag-prereleases`  | bool   | false                 | Create tags for pre-release versions                 |
+| `sign`             | bool   | false                 | Create GPG-signed tags (implies annotated)           |
+| `signing-key`      | string | `""`                  | GPG key ID for signing (uses git default if empty)   |
+| `message-template` | string | `"Release {version}"` | Template for tag message with placeholders           |
 
 ### Pre-release Tagging Behavior
 
@@ -113,22 +128,9 @@ Available placeholders:
 
 ## Usage
 
-### Automatic Tagging
-
-Once enabled with `auto-create: true`, the plugin works automatically:
-
-```bash
-sley bump patch
-# => 1.2.4 (tag: v1.2.4)
-
-# With push: true
-sley bump minor
-# => 1.3.0 (tag: v1.3.0, pushed)
-```
-
 ### Manual Tagging with `sley tag`
 
-For workflows that require additional steps between version bump and tag creation:
+With `enabled: true` (the default mode), use `sley tag` commands to manage tags independently from bumps:
 
 ```bash
 # Create a tag for the current version
@@ -171,9 +173,22 @@ git commit -m "chore: release v1.3.0"
 sley tag create --push
 ```
 
-## Tag Validation (Fail-Fast)
+### Automatic Tagging
 
-The plugin validates tag availability **before** bumping:
+With `auto-create: true`, the plugin integrates directly into the bump workflow:
+
+```bash
+sley bump patch
+# => 1.2.4 (tag: v1.2.4)
+
+# With push: true
+sley bump minor
+# => 1.3.0 (tag: v1.3.0, pushed)
+```
+
+### Tag Validation (Fail-Fast)
+
+When `auto-create: true`, the plugin validates tag availability **before** bumping:
 
 ```bash
 # If v1.3.0 already exists:
@@ -182,6 +197,10 @@ sley bump minor
 # Version file remains unchanged
 ```
 
+::: info
+Tag validation only applies to automatic mode. In manual mode, `sley tag create` validates at the time you run it.
+:::
+
 ## Integration with Other Plugins
 
 ```yaml
@@ -189,11 +208,12 @@ plugins:
   commit-parser: true
   tag-manager:
     enabled: true
+    auto-create: true
     prefix: "v"
     push: true
 ```
 
-Flow: commit-parser analyzes -> tag-manager validates -> version updated -> tag created and pushed
+Flow (with `auto-create: true`): commit-parser analyzes -> tag-manager validates -> version updated -> tag created and pushed
 
 ## Best Practices
 
@@ -204,6 +224,17 @@ Flow: commit-parser analyzes -> tag-manager validates -> version updated -> tag 
 5. **Clean tag list** - Keep `tag-prereleases: false` for stable releases only
 
 ## Common errors
+
+### `Error: tag-manager plugin is not enabled`
+
+**Cause:** Running `sley tag` commands without enabling the plugin in your configuration.
+**Solution:** Enable the tag-manager plugin in `.sley.yaml`:
+
+```yaml
+plugins:
+  tag-manager:
+    enabled: true
+```
 
 ### `Error: tag v1.2.3 already exists`
 
@@ -253,12 +284,13 @@ For more troubleshooting help, see the [Troubleshooting Guide](/guide/troublesho
 
 ## Troubleshooting
 
-| Issue            | Solution                                                  |
-| ---------------- | --------------------------------------------------------- |
-| Tags not created | Verify `enabled: true` and you're in a git repository     |
-| Tags not pushing | Check `push: true` and remote configuration               |
-| Wrong tag format | Verify `prefix` configuration                             |
-| Signing failed   | Check GPG key is configured: `git config user.signingkey` |
+| Issue                         | Solution                                                  |
+| ----------------------------- | --------------------------------------------------------- |
+| `sley tag` commands fail      | Verify `enabled: true` in your `.sley.yaml`               |
+| Tags not auto-created on bump | Verify both `enabled: true` and `auto-create: true`       |
+| Tags not pushing              | Check `push: true` and remote configuration               |
+| Wrong tag format              | Verify `prefix` configuration                             |
+| Signing failed                | Check GPG key is configured: `git config user.signingkey` |
 
 ## See Also
 
