@@ -343,6 +343,7 @@ Define your extension in `extension.yaml`:
 
 ```yaml
 # extension.yaml
+schema_version: 1
 name: my-extension
 version: 1.0.0
 description: Brief description of what this extension does
@@ -356,6 +357,7 @@ hooks:
 
 Manifest fields:
 
+- `schema_version`: Schema version of the manifest format (optional, defaults to `1`)
 - `name`: Extension identifier (required)
 - `version`: Extension version (required)
 - `description`: Human-readable description (required)
@@ -363,6 +365,10 @@ Manifest fields:
 - `repository`: Source code URL (recommended)
 - `entry`: Script filename to execute (required)
 - `hooks`: List of hook points this extension supports (required)
+
+::: tip Manifest Versioning
+The `schema_version` field enables backwards-compatible evolution of the manifest schema. If omitted, it defaults to `1`. If your manifest uses a version newer than what your installed sley supports, you'll get a clear error prompting you to upgrade.
+:::
 
 #### Hook Script Example
 
