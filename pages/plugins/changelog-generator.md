@@ -309,11 +309,30 @@ Lists unique contributors per version and detects first-time contributors.
 | `enabled`                 | bool   | true    | Enable/disable contributors section                                        |
 | `format`                  | string | (link)  | Go template for contributor formatting                                     |
 | `icon`                    | string | `❤️`    | Icon before "Contributors" header (requires `use-default-icons: true`)     |
+| `show-name`               | bool   | true    | Show contributor name alongside username link                              |
 | `show-new-contributors`   | bool   | true    | Enable "New Contributors" section                                          |
 | `new-contributors-format` | string | (auto)  | Go template for new contributor entries                                    |
 | `new-contributors-icon`   | string | `🎉`    | Icon before "New Contributors" header (requires `use-default-icons: true`) |
 
 Template variables: `.Name`, `.Username`, `.Email`, `.Host`. New contributors also have `.PRNumber` and `.CommitHash`.
+
+When `show-name` is `true` (default), contributors are listed as:
+
+```markdown
+- John Doe ([@johndoe](https://github.com/johndoe))
+```
+
+Set `show-name: false` to display only the username link:
+
+```yaml
+contributors:
+  enabled: true
+  show-name: false
+```
+
+```markdown
+- [@johndoe](https://github.com/johndoe)
+```
 
 ## Working with Changelogs
 
