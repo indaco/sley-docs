@@ -186,34 +186,6 @@ Different sley commands trigger different subsets of plugins:
 Most users will only need plugins. Extensions are for advanced customization and organization-specific workflows.
 :::
 
-## Common Workflow Patterns
-
-### Auto-Bump + Changelog
-
-```bash
-sley bump auto
-# commit-parser analyzes commits -> determines bump type
-# changelog-generator creates versioned changelog entry
-```
-
-### Auto-Bump + Tag + Push
-
-```bash
-sley bump auto
-# commit-parser analyzes commits -> bump type
-# tag-manager validates tag doesn't exist
-# Version updated -> tag created and pushed
-```
-
-### Full CI/CD Pipeline
-
-```bash
-sley bump auto
-# Pre-bump: version-validator, dependency-check, tag-manager validation
-# Bump: commit-parser determines type, version updated
-# Post-bump: files synced, changelog generated, tag created
-```
-
 ## See Also
 
 - [Extension System](/extensions/) - Create custom automation hooks

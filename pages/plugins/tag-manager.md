@@ -19,24 +19,13 @@ While disabled by default, tag-manager is included in the recommended configurat
 All `sley tag` subcommands (`create`, `list`, `push`, `delete`) require `enabled: true`. Without it, commands will fail with an error.
 :::
 
-## Features
-
-- Manual tag management via `sley tag` commands
-- Automatic git tag creation after version bumps (with `auto-create: true`)
-- Pre-bump validation to ensure tag doesn't already exist (with `auto-create: true`)
-- Configurable tag prefix (`v`, `release-`, or custom)
-- Support for annotated and lightweight tags
-- GPG signing support for signed tags
-- Custom message templates with placeholders
-- Optional automatic push to remote repository
-
 ## How It Works
 
 The plugin operates in two modes depending on the `auto-create` setting:
 
 ### Manual mode (`auto-create: false`, default)
 
-With just `enabled: true`, you get access to the `sley tag` commands for manual tag management. Version bumps are not affected — no tag validation or creation happens during `sley bump`.
+With just `enabled: true`, you get access to the `sley tag` commands for manual tag management. Version bumps are not affected - no tag validation or creation happens during `sley bump`.
 
 ### Automatic mode (`auto-create: true`)
 
@@ -91,7 +80,7 @@ plugins:
 | Option                    | Type   | Default                   | Description                                                               |
 | ------------------------- | ------ | ------------------------- | ------------------------------------------------------------------------- |
 | `enabled`                 | bool   | false                     | Enable the plugin (required for `sley tag` commands)                      |
-| `prefix`                  | string | `"v"`                     | Prefix for tag names                                                      |
+| `prefix`                  | string | `"v"`                     | Prefix for tag names (supports `{module_path}` for monorepos)             |
 | `annotate`                | bool   | true                      | Create annotated tags (vs lightweight)                                    |
 | `tag-prereleases`         | bool   | false                     | Create tags for pre-release versions                                      |
 | `auto-create`             | bool   | false                     | Automatically validate and create tags during bumps                       |
@@ -124,17 +113,18 @@ plugins:
 
 Available placeholders:
 
-| Placeholder    | Description                              | Example          |
-| -------------- | ---------------------------------------- | ---------------- |
-| `{version}`    | Full version string                      | `1.2.3-alpha.1`  |
-| `{tag}`        | Full tag name with prefix                | `v1.2.3-alpha.1` |
-| `{prefix}`     | Tag prefix                               | `v`              |
-| `{date}`       | Current date (YYYY-MM-DD)                | `2024-06-15`     |
-| `{major}`      | Major version number                     | `1`              |
-| `{minor}`      | Minor version number                     | `2`              |
-| `{patch}`      | Patch version number                     | `3`              |
-| `{prerelease}` | Pre-release identifier (empty if stable) | `alpha.1`        |
-| `{build}`      | Build metadata (empty if none)           | `build.123`      |
+| Placeholder     | Description                              | Example          |
+| --------------- | ---------------------------------------- | ---------------- |
+| `{version}`     | Full version string                      | `1.2.3-alpha.1`  |
+| `{tag}`         | Full tag name with prefix                | `v1.2.3-alpha.1` |
+| `{prefix}`      | Tag prefix                               | `v`              |
+| `{module_path}` | Module relative path (empty for root)    | `cobra`          |
+| `{date}`        | Current date (YYYY-MM-DD)                | `2024-06-15`     |
+| `{major}`       | Major version number                     | `1`              |
+| `{minor}`       | Minor version number                     | `2`              |
+| `{patch}`       | Patch version number                     | `3`              |
+| `{prerelease}`  | Pre-release identifier (empty if stable) | `alpha.1`        |
+| `{build}`       | Build metadata (empty if none)           | `build.123`      |
 
 ### Commit Message Template
 
@@ -156,6 +146,54 @@ plugins:
 | 1.2.3         | `release-` | `release-1.2.3`  |
 | 1.2.3         | (empty)    | `1.2.3`          |
 | 1.0.0-alpha.1 | `v`        | `v1.0.0-alpha.1` |
+
+### Monorepo Tag Formats with `{module_path}`
+
+For monorepos and multi-module projects, use the `{module_path}` template variable in the `prefix` to produce path-prefixed tags scoped to each module:
+
+```yaml
+plugins:
+  tag-manager:
+    enabled: true
+    prefix: "{module_path}/v"
+
+workspace:
+  discovery:
+    enabled: true
+```
+
+With this configuration, tags are automatically scoped per module:
+
+| Module                  | Version | Tag Name              |
+| ----------------------- | ------- | --------------------- |
+| Root (`.version`)       | 1.2.3   | `v1.2.3`              |
+| `cobra/.version`        | 0.3.0   | `cobra/v0.3.0`        |
+| `services/api/.version` | 2.1.0   | `services/api/v2.1.0` |
+
+::: tip How it works
+
+- For the **root module**, `{module_path}` resolves to an empty string and the leading `/` is trimmed automatically, producing `v1.2.3`.
+- For **submodules**, `{module_path}` resolves to the module's relative directory path (e.g., `cobra`, `services/api`).
+- The `{module_path}` variable can also be used in `message-template` and `commit-message-template`.
+  :::
+
+::: warning Workspace required
+If `prefix` contains `{module_path}` but workspace discovery is not enabled, sley emits a configuration warning and the variable resolves to an empty string.
+:::
+
+### Per-Module Config Overrides
+
+Instead of (or in addition to) `{module_path}`, each module can have its own `.sley.yaml` with a different `prefix`:
+
+```yaml
+# cobra/.sley.yaml
+plugins:
+  tag-manager:
+    enabled: true
+    prefix: "cobra/v"
+```
+
+Module-level settings override the root configuration. If no module `.sley.yaml` exists, the root config is used.
 
 ## Usage
 
@@ -185,6 +223,46 @@ sley tag push v1.2.3       # Push specific tag
 sley tag delete v1.2.3
 sley tag delete v1.2.3 --remote  # Also delete from remote
 ```
+
+### Monorepo Tagging
+
+In a multi-module workspace, use `--module` to tag individual modules:
+
+```bash
+# Tag each module independently
+sley tag --module myapp create         # → v1.0.0 (root)
+sley tag --module cobra create         # → cobra/v0.3.0
+sley tag --module kong create          # → kong/v0.2.0
+
+# List tags for a specific module
+sley tag --module cobra list           # → cobra/v0.1.0, cobra/v0.2.0, cobra/v0.3.0
+
+# Push a module's tag
+sley tag --module cobra push
+```
+
+### Tag All Modules (`tag create --all`)
+
+Use `--all` to create tags for every module in the workspace:
+
+```bash
+sley tag create --all
+#   ✓ root: v1.0.0
+#   ✓ cobra: cobra/v0.3.0
+#   ✓ services/api: services/api/v2.1.0
+#   i Skipped kong/v0.2.0 - tag already exists
+```
+
+Behavior:
+
+- Iterates **all** modules (not just the first)
+- Per-module config is loaded from the module's `.sley.yaml` (if present) and merged with root
+- Prefix is interpolated per module using `{module_path}`
+- **Duplicate tags are skipped** with an info message (not fatal)
+- Individual module failures do not stop other modules
+- A summary error is reported if any modules failed: `X of Y module(s) failed tag creation`
+
+To recover from a partial failure, re-run `sley tag create --all`. Existing tags are skipped; only missing ones are created.
 
 ### Typical Manual Workflow
 
@@ -246,14 +324,6 @@ plugins:
 
 Flow (with `auto-create: true`): commit-parser analyzes -> tag-manager validates -> version updated -> changes committed -> tag created and pushed
 
-## Best Practices
-
-1. **Use annotated or signed tags** - Better metadata for releases
-2. **Consistent prefix** - Choose one and stick with it (`v` is most common)
-3. **CI/CD push** - Enable `push: true` only in CI/CD pipelines
-4. **Local development** - Keep `push: false` for local work
-5. **Clean tag list** - Keep `tag-prereleases: false` for stable releases only
-
 ## Common errors
 
 ### `Error: tag-manager plugin is not enabled`
@@ -312,16 +382,6 @@ plugins:
 ```
 
 For more troubleshooting help, see the [Troubleshooting Guide](/guide/troubleshooting/).
-
-## Troubleshooting
-
-| Issue                         | Solution                                                  |
-| ----------------------------- | --------------------------------------------------------- |
-| `sley tag` commands fail      | Verify `enabled: true` in your `.sley.yaml`               |
-| Tags not auto-created on bump | Verify both `enabled: true` and `auto-create: true`       |
-| Tags not pushing              | Check `push: true` and remote configuration               |
-| Wrong tag format              | Verify `prefix` configuration                             |
-| Signing failed                | Check GPG key is configured: `git config user.signingkey` |
 
 ## See Also
 

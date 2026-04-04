@@ -45,13 +45,14 @@ extensions:
 
 ## Top-Level Options
 
-| Option       | Type   | Default    | Description                       |
-| ------------ | ------ | ---------- | --------------------------------- |
-| `path`       | string | `.version` | Path to the .version file         |
-| `theme`      | string | `sley`     | TUI theme for interactive prompts |
-| `workspace`  | object | `{}`       | Workspace/monorepo configuration  |
-| `plugins`    | object | `{}`       | Plugin configuration              |
-| `extensions` | array  | `[]`       | Extension configuration           |
+| Option              | Type   | Default    | Description                            |
+| ------------------- | ------ | ---------- | -------------------------------------- |
+| `path`              | string | `.version` | Path to the .version file              |
+| `theme`             | string | `sley`     | TUI theme for interactive prompts      |
+| `workspace`         | object | `{}`       | Workspace/monorepo configuration       |
+| `plugins`           | object | `{}`       | Plugin configuration                   |
+| `extensions`        | array  | `[]`       | Extension configuration                |
+| `pre-release-hooks` | array  | `[]`       | Pre-release hook scripts (run on bump) |
 
 ## Path Configuration
 
@@ -119,6 +120,7 @@ For monorepos with multiple `.version` files. See [Monorepo Support](/guide/mono
 
 ```yaml
 workspace:
+  versioning: independent
   discovery:
     enabled: true
     recursive: true
@@ -139,30 +141,22 @@ workspace:
       enabled: false
 ```
 
+### Versioning Mode
+
+| Option       | Type   | Default       | Description                                     |
+| ------------ | ------ | ------------- | ----------------------------------------------- |
+| `versioning` | string | `coordinated` | Versioning mode: `independent` or `coordinated` |
+
+- **`coordinated`** (default): `sley discover` warns on version mismatches between modules
+- **`independent`**: Mismatch warnings suppressed - expected for independently versioned modules
+
 ::: info Workspace vs dependency-check
-These configurations serve different purposes:
 
-- **`workspace`** - Manages multiple **`.version` files** as independent version sources (independent versioning)
-- **`dependency-check`** - Syncs files TO a `.version` file (manifest files and, in coordinated versioning, submodule `.version` files)
+- **`workspace`** manages multiple `.version` files as independent version sources
+- **`dependency-check`** syncs files TO a `.version` file (manifests and, in coordinated mode, submodule `.version` files)
 
-**Important:** The role of `.version` files depends on your versioning model:
-
-- **Independent versioning** (workspace): Each `.version` file is a source of truth
-- **Coordinated versioning**: Submodule `.version` files sync TO the root `.version` file
-- **Single-root**: Only one `.version` file exists (always a source)
-
-See [Understanding Versioning Models](/guide/monorepo/#understanding-versioning-models) for detailed guidance.
+See [Versioning Models](/guide/monorepo/versioning-models) for details.
 :::
-
-### When to Use Workspace Configuration
-
-| Scenario                                   | Use Workspace? | Recommended Model                           |
-| ------------------------------------------ | -------------- | ------------------------------------------- |
-| Multiple independently-versioned modules   | Yes            | Independent versioning (workspace)          |
-| Monorepo with packages released separately | Yes            | Independent versioning (workspace)          |
-| Multiple `.version` files, same version    | No             | Coordinated versioning (`dependency-check`) |
-| Single module with multiple manifest files | No             | Single-root (`dependency-check`)            |
-| All files share the same version           | No             | Single-root or coordinated versioning       |
 
 ### Discovery Options
 
@@ -367,17 +361,52 @@ workspace:
 
 ## Module-specific Configuration
 
-In monorepos, each module can have its own `.sley.yaml` that overrides workspace settings:
+In monorepos, each module can have its own `.sley.yaml` that overrides workspace settings. Use `{module_path}` in the root config, or per-module `.sley.yaml` files, or both.
+
+### Using `{module_path}` Template Variable
+
+A single root config with `{module_path}` in the tag prefix produces path-scoped tags for each module:
+
+```yaml
+# .sley.yaml (root) - single config for all modules
+workspace:
+  versioning: independent
+  discovery:
+    enabled: true
+plugins:
+  tag-manager:
+    enabled: true
+    prefix: "{module_path}/v"
+```
+
+- Root module → `v1.0.0` (`{module_path}` is empty, leading `/` trimmed)
+- `cobra/` module → `cobra/v0.3.0`
+- `services/api/` module → `services/api/v2.1.0`
+
+See the [Tag Manager plugin](/plugins/tag-manager#monorepo-tag-formats-with-module-path) for details.
+
+### Per-Module `.sley.yaml` Override
 
 ```yaml
 # services/api/.sley.yaml
-path: .version
 plugins:
-  commit-parser: false # Disable for this module
+  commit-parser: false
   tag-manager:
     enabled: true
-    prefix: "api-v" # Module-specific prefix
+    prefix: "api-v"
 ```
+
+### Config Merge Behavior
+
+When a module has its own `.sley.yaml`, sley merges it with the root config:
+
+| Field                                                                              | Merge behavior                                                |
+| ---------------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| **Plugin pointer fields** (tag-manager, version-validator, dependency-check, etc.) | Module non-nil value wins; otherwise root applies             |
+| **`commit-parser`**                                                                | Root wins (workspace-level setting)                           |
+| **`extensions`**                                                                   | Additive merge, deduplicated by name; module wins on conflict |
+| **`pre-release-hooks`**                                                            | Additive merge; root hooks run first                          |
+| **`path`, `theme`, `workspace`**                                                   | Root values only - not overridden by module                   |
 
 ## See Also
 

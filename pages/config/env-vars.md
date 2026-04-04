@@ -1,6 +1,6 @@
 ---
 title: "Environment Variables"
-description: "Configure sley using environment variables like SLEY_PATH, CI mode detection, and NO_COLOR for CI/CD pipelines and automation"
+description: "Configure sley using environment variables for CI/CD pipelines and automation"
 head:
   - - meta
     - name: keywords
@@ -9,16 +9,15 @@ head:
 
 # {{ $frontmatter.title }}
 
-sley supports configuration through environment variables. Environment variables take precedence over `.sley.yaml` but are overridden by command-line flags.
+Environment variables override `.sley.yaml` settings but are overridden by command-line flags.
 
 ## Available Variables
 
-| Variable     | Description                                 | Default    |
-| ------------ | ------------------------------------------- | ---------- |
-| `SLEY_PATH`  | Path to the .version file                   | `.version` |
-| `SLEY_THEME` | TUI theme for interactive prompts           | `sley`     |
-| `CI`         | Enables CI mode (disables interactive mode) | -          |
-| `NO_COLOR`   | Disables colored output                     | -          |
+| Variable     | Default    | Description                                | Example          |
+| ------------ | ---------- | ------------------------------------------ | ---------------- |
+| `SLEY_PATH`  | `.version` | Path to the `.version` file                | `./src/.version` |
+| `SLEY_THEME` | `sley`     | TUI theme for interactive prompts          | `catppuccin`     |
+| `NO_COLOR`   | -          | Set to any value to disable colored output | `1`              |
 
 ## SLEY_PATH
 
@@ -27,61 +26,26 @@ Specify a custom path to the `.version` file:
 ```bash
 export SLEY_PATH=./my-folder/.version
 sley show
-# => Reads from ./my-folder/.version
 ```
 
-This is equivalent to using the `--path` flag:
+Equivalent to `--path ./my-folder/.version`.
 
-```bash
-sley show --path ./my-folder/.version
-```
+::: warning Security
+The path must not contain `..`. sley rejects paths with path traversal sequences.
+:::
 
 ## SLEY_THEME
 
-Specify a custom TUI theme for interactive prompts:
+Set the TUI theme for interactive prompts:
 
 ```bash
 export SLEY_THEME=catppuccin
 sley bump
-# => Uses catppuccin theme for interactive prompts
 ```
 
-This is equivalent to using the `--theme` flag:
-
-```bash
-sley bump --theme catppuccin
-```
+Equivalent to `--theme catppuccin`. This variable is ignored when `--theme` is explicitly passed on the command line.
 
 **Available themes**: `sley` (default), `base`, `base16`, `catppuccin`, `charm`, `dracula`
-
-::: tip Theme Configuration
-For complete theme details and configuration priority order, see [Theme Configuration](/reference/sley-yaml#theme-configuration).
-:::
-
-## CI Mode
-
-When running in CI/CD environments, sley automatically detects common CI environment variables and enables non-interactive mode.
-
-Detected CI environments:
-
-- **GitHub Actions**: `GITHUB_ACTIONS=true`
-- **GitLab CI**: `GITLAB_CI=true`
-- **CircleCI**: `CIRCLECI=true`
-- **Travis CI**: `TRAVIS=true`
-- **Jenkins**: `JENKINS_URL` is set
-- **Generic**: `CI=true`
-
-You can also explicitly enable CI mode:
-
-```bash
-CI=true sley bump patch
-```
-
-In CI mode:
-
-- Interactive prompts are disabled
-- Multi-module operations default to `--all`
-- Output is optimized for logs
 
 ## NO_COLOR
 
@@ -91,25 +55,34 @@ Disable colored output:
 NO_COLOR=1 sley show
 ```
 
-This is equivalent to using the `--no-color` flag:
+Equivalent to `--no-color`. Any non-empty value disables color.
+
+## CI Detection
+
+sley automatically enables non-interactive mode when it detects any of these environment variables:
+
+- `GITHUB_ACTIONS=true`
+- `GITLAB_CI=true`
+- `CIRCLECI=true`
+- `TRAVIS=true`
+- `JENKINS_URL` (any value)
+- `CI=true`
+
+In CI mode, interactive prompts are disabled and multi-module operations default to `--all`.
+
+You can trigger CI mode explicitly:
 
 ```bash
-sley show --no-color
+CI=true sley bump patch
 ```
-
-::: tip Precedence
-Environment variables override `.sley.yaml` settings but are overridden by command-line flags. See [Configuration](/config/) for the full precedence order.
-:::
 
 ## Usage Examples
 
 ### CI/CD Pipeline
 
-```bash
+```yaml
 # GitHub Actions
 - name: Bump version
-  env:
-    CI: true
   run: sley bump patch --strict
 
 # GitLab CI
@@ -122,16 +95,12 @@ version:bump:
 ### Local Development
 
 ```bash
-# Set default path for session
+# Set default path and theme for the session
 export SLEY_PATH=./packages/core/.version
-sley show
-sley bump patch
-
-# Set theme preference
 export SLEY_THEME=dracula
-sley bump minor
+sley show
 
-# Or use .env file with direnv
+# Or use direnv
 echo 'export SLEY_PATH=./packages/core/.version' >> .envrc
 echo 'export SLEY_THEME=catppuccin' >> .envrc
 direnv allow
@@ -141,22 +110,14 @@ direnv allow
 
 ```bash
 #!/bin/bash
-# Version bump script
-
-# Disable colors for log parsing
 export NO_COLOR=1
-
-# Use specific version file
 export SLEY_PATH="./app/.version"
 
-# Get current version
 CURRENT=$(sley show)
 echo "Current version: $CURRENT"
 
-# Bump version
 sley bump patch
-NEW=$(sley show)
-echo "New version: $NEW"
+echo "New version: $(sley show)"
 ```
 
 ## See Also
@@ -165,5 +126,3 @@ echo "New version: $NEW"
 - [.sley.yaml Reference](/reference/sley-yaml) - Configuration file reference
 - [CLI Reference](/reference/cli) - Command-line flags
 - [CI/CD Integration](/guide/ci-cd) - Environment variable usage in pipelines
-- [Monorepo Support](/guide/monorepo/) - SLEY_PATH with multi-module projects
-- [Troubleshooting](/guide/troubleshooting/) - Common environment variable issues

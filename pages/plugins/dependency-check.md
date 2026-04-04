@@ -75,7 +75,7 @@ The dependency-check plugin syncs files TO the `.version` file. What can be sync
 - **Coordinated versioning**: Syncs both manifest files AND submodule `.version` files TO the root `.version`
 - **Independent versioning** (workspace): Each module's `dependency-check` syncs only manifest files TO that module's `.version`
 
-See [Understanding Versioning Models](/guide/monorepo/#understanding-versioning-models) to choose the right approach.
+See [Versioning Models](/guide/monorepo/versioning-models) to choose the right approach.
 :::
 
 **Increasing search depth:**
