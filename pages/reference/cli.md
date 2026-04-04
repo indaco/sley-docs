@@ -44,14 +44,35 @@ Initialize `.version` file and `.sley.yaml` configuration.
 sley init [options]
 ```
 
-| Option        | Description                                               |
-| ------------- | --------------------------------------------------------- |
-| `--yes`, `-y` | Use defaults without prompts (commit-parser, tag-manager) |
-| `--template`  | Use a pre-configured template                             |
-| `--enable`    | Comma-separated list of plugins to enable                 |
-| `--workspace` | Initialize as monorepo with workspace configuration       |
-| `--migrate`   | Detect version from existing files (package.json, etc.)   |
-| `--force`     | Overwrite existing .sley.yaml                             |
+| Option        | Description                                                                                         |
+| ------------- | --------------------------------------------------------------------------------------------------- |
+| `--yes`, `-y` | Use defaults without prompts (commit-parser, tag-manager)                                           |
+| `--template`  | Use a pre-configured template (see [Templates](/guide/usage#available-templates) for details)       |
+| `--enable`    | Comma-separated list of plugins to enable                                                           |
+| `--workspace` | Initialize as monorepo with workspace configuration                                                 |
+| `--migrate`   | Detect version from existing files (package.json, etc.). With `--yes`, auto-selects the best source |
+| `--force`     | Overwrite existing .sley.yaml                                                                       |
+
+::: warning
+`--migrate` is ignored when combined with `--workspace`. Workspace initialization takes precedence.
+:::
+
+#### `init --workspace` Behavior
+
+When `--workspace` is used, sley auto-detects monorepo workspace markers in this order:
+
+1. `go.work` - parses `use` directives
+2. `pnpm-workspace.yaml` - parses `packages` field
+3. `package.json` - parses `workspaces` field
+4. `Cargo.toml` - parses `[workspace]` section
+
+When a monorepo is detected:
+
+- Sets `workspace.versioning: independent` in `.sley.yaml`
+- Sets `tag-manager.prefix: '{module_path}/v'` for path-scoped tags
+- Creates `.version` files in each discovered submodule directory
+- Use `--yes` for non-interactive mode
+- In interactive mode, a confirmation prompt is shown before applying monorepo defaults
 
 ### `discover` / `scan`
 
@@ -91,6 +112,8 @@ sley discover --format json
 sley discover --no-interactive
 ```
 
+When `workspace.versioning` is set to `independent`, version differences between modules are reported as informational rather than warnings. In coordinated mode (default), mismatches are reported as warnings.
+
 **Auto-Initialization Workflow**:
 
 When no `.sley.yaml` exists, `discover` offers to initialize your project automatically:
@@ -101,6 +124,12 @@ When no `.sley.yaml` exists, `discover` offers to initialize your project automa
 4. Creates `.version` file if it doesn't exist
 
 This streamlined workflow eliminates the need to run `sley init` separately after discovery.
+
+**Multi-Module Detection**:
+
+When multiple `.version` files are found and no `.sley.yaml` exists, `discover` prompts you to choose between coordinated versioning (shared version), independent versioning (workspace), or single-root mode. When monorepo markers (`go.work`, `pnpm-workspace.yaml`, etc.) are detected, it offers to initialize as a workspace project with `{module_path}/v` tag prefixes.
+
+Use `--no-interactive` to skip these prompts.
 
 ### `show`
 
@@ -235,22 +264,22 @@ Bump semantic version.
 sley bump <patch|minor|major|pre|auto|release> [options]
 ```
 
-| Option                | Description                                               |
-| --------------------- | --------------------------------------------------------- |
-| `--pre`               | Set pre-release label after bump (for patch/minor/major)  |
-| `--meta`              | Set build metadata after bump                             |
-| `--preserve-meta`     | Keep existing build metadata                              |
-| `--all`, `-a`         | Operate on all discovered modules                         |
-| `--module`, `-m`      | Operate on specific module by name                        |
-| `--modules`           | Operate on multiple modules (comma-separated)             |
-| `--pattern`           | Operate on modules matching glob pattern                  |
-| `--yes`, `-y`         | Auto-select all modules without prompting (implies --all) |
-| `--non-interactive`   | Disable interactive prompts (CI mode)                     |
-| `--parallel`          | Execute operations in parallel                            |
-| `--fail-fast`         | Stop on first error (default)                             |
-| `--continue-on-error` | Continue even if some modules fail                        |
-| `--quiet`, `-q`       | Suppress per-module output                                |
-| `--format`            | Output format: text, json, table (default: "text")        |
+| Option                | Description                                                                                                                                     |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--pre`               | Set pre-release label after bump (for patch/minor/major)                                                                                        |
+| `--meta`              | Set build metadata after bump                                                                                                                   |
+| `--preserve-meta`     | Keep existing build metadata                                                                                                                    |
+| `--all`, `-a`         | Operate on all discovered modules; runs the full pipeline per module (validation, bump, changelog, tags, audit log, dep-check, extension hooks) |
+| `--module`, `-m`      | Operate on specific module by name; runs the full pipeline for that module                                                                      |
+| `--modules`           | Operate on multiple modules (comma-separated)                                                                                                   |
+| `--pattern`           | Operate on modules matching glob pattern                                                                                                        |
+| `--yes`, `-y`         | Auto-select all modules without prompting (implies --all)                                                                                       |
+| `--non-interactive`   | Disable interactive prompts (CI mode)                                                                                                           |
+| `--parallel`          | Execute operations in parallel                                                                                                                  |
+| `--fail-fast`         | Stop on first error (default)                                                                                                                   |
+| `--continue-on-error` | Continue even if some modules fail                                                                                                              |
+| `--quiet`, `-q`       | Suppress per-module output                                                                                                                      |
+| `--format`            | Output format: text, json, table (default: "text")                                                                                              |
 
 **Subcommands:**
 
@@ -305,6 +334,11 @@ sley bump pre [options]
 ```
 
 Note: This is different from the standalone `pre` command. The `bump pre` subcommand increments the pre-release while potentially bumping the patch version, whereas the standalone `pre` command only modifies the pre-release label without changing the version numbers.
+
+| Option          | Description                         |
+| --------------- | ----------------------------------- |
+| `--label`, `-l` | Pre-release label (alpha, beta, rc) |
+| `--skip-hooks`  | Skip pre-release hooks              |
 
 All multi-module flags (see parent command) are also supported.
 
@@ -504,12 +538,37 @@ Create a git tag for the current version (aliases: `c`, `new`).
 sley tag create [options]
 ```
 
-| Option            | Description                                          |
-| ----------------- | ---------------------------------------------------- |
-| `--push`          | Push the tag to remote after creation                |
-| `--message`, `-m` | Override the tag message (for annotated/signed tags) |
+| Option                | Description                                          |
+| --------------------- | ---------------------------------------------------- |
+| `--push`              | Push the tag to remote after creation                |
+| `--message`, `-m`     | Override the tag message (for annotated/signed tags) |
+| `--all`, `-a`         | Create tags for all discovered modules               |
+| `--module`, `-m`      | Create tag for specific module by name               |
+| `--modules`           | Create tags for multiple modules (comma-separated)   |
+| `--pattern`           | Create tags for modules matching glob pattern        |
+| `--yes`, `-y`         | Auto-select all modules without prompting            |
+| `--continue-on-error` | Continue if some modules fail                        |
 
-The tag name and format are determined by the tag-manager plugin configuration. If the plugin is not enabled, default settings are used (prefix: `v`, lightweight tag).
+The tag name and format are determined by the tag-manager plugin configuration. When using `--all`, sley iterates every module, loads per-module config, and interpolates the tag prefix. Duplicate tags are skipped with an info message (not fatal). Individual module failures do not stop other modules. In single-module mode, attempting to create a tag that already exists results in an error.
+
+**Examples:**
+
+```bash
+# Create tag for current version
+sley tag create
+
+# Create and push
+sley tag create --push
+
+# Tag all modules in a workspace
+sley tag create --all
+#   ✓ root: v1.0.0
+#   ✓ adapters/redis: adapters/redis/v0.1.0
+#   i Skipped kong/v0.2.0 - tag already exists
+
+# Tag a specific module
+sley tag create --module api --push
+```
 
 #### `tag list`
 
@@ -571,6 +630,8 @@ sley changelog merge [options]
 
 This command combines all versioned changelog files (.changes/v\*.md) into a single CHANGELOG.md file, sorted by version (newest first). It prepends a default header or uses a custom header template if specified.
 
+The `merge` command works standalone even without the `changelog-generator` plugin enabled, using default settings. CLI flags override `.sley.yaml` plugin configuration.
+
 **Examples:**
 
 ```bash
@@ -583,6 +644,8 @@ sley changelog merge --changes-dir .changes --output CHANGELOG.md
 # With custom header
 sley changelog merge --header-template .changes/header.md
 ```
+
+For multi-module projects, `merge` recursively collects files from module subdirectories (e.g., `.changes/api/v1.0.0.md`) and adds module-prefixed headings. See [Changelog Generator](/plugins/changelog-generator) for details.
 
 ### `extension`
 
@@ -600,11 +663,11 @@ Install an extension from a remote repository or local path.
 sley extension install [options]
 ```
 
-| Option            | Description                                                      |
-| ----------------- | ---------------------------------------------------------------- |
-| `--url`           | Git repository URL with optional subdirectory (GitHub, GitLab)   |
-| `--path`          | Local filesystem path (absolute or relative)                     |
-| `--extension-dir` | Directory to store extensions in (default: `~/.sley-extensions`) |
+| Option            | Description                                                    |
+| ----------------- | -------------------------------------------------------------- |
+| `--url`           | Git repository URL with optional subdirectory (GitHub, GitLab) |
+| `--path`          | Local filesystem path (absolute or relative)                   |
+| `--extension-dir` | Directory to store extensions in (default: current directory)  |
 
 ::: warning
 `--url` and `--path` are mutually exclusive. One must be provided. Passing a URL to `--path` will result in an error.
@@ -619,6 +682,14 @@ The `--url` flag now supports subdirectories within repositories:
 - `github.com/user/repo` - Shorthand for repository root
 - `github.com/user/repo/path/to/extension` - Shorthand with subdirectory
 - `gitlab.com/user/repo` or `gitlab.com/user/repo/sub/dir` - GitLab support
+
+**Version pinning** with `@<ref>`:
+
+- `github.com/user/repo@v1.0.0` - Specific tag or version
+- `github.com/user/repo@develop` - Branch
+- `github.com/user/repo/path@v1.0.0` - Subdirectory with version
+
+Requires `git` to be available on PATH.
 
 **Examples:**
 
