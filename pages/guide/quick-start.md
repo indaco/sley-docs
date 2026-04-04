@@ -1,15 +1,13 @@
 ---
 title: "Quick Start"
-description: "Get up and running with sley version management in under a minute with this quick start guide and installation instructions"
+description: "Get up and running with sley version management in under 5 minutes"
 head:
   - - meta
     - name: keywords
-      content: sley, quick start, getting started, version management, semantic versioning, installation, tutorial
+      content: sley, quick start, getting started, version management, semantic versioning, installation
 ---
 
 # {{ $frontmatter.title }}
-
-Get up and running with sley in under a minute.
 
 ## Install
 
@@ -18,108 +16,82 @@ brew install indaco/tap/sley
 ```
 
 ::: details Other installation methods
-See [Installation](/guide/installation) for all installation options (go install, asdf, prebuilt binaries, build from source).
+See [Installation](/guide/installation) for go install, asdf, prebuilt binaries, and build from source.
 :::
 
-## Try It
+## Single-Module Track
 
-### Project Setup
+### 1. Initialize
 
 ```bash
-# Quick setup - automatically detect and configure your project
-sley discover
-# Output:
-#   Scanning for version sources...
-#   Found: package.json (1.2.3)
-#   Creating .version and .sley.yaml...
-#   ✓ Initialized
-
-# Or initialize manually
-sley init                  # Interactive: select plugins
-sley init --migrate        # Import version from existing package.json/Cargo.toml
+sley init --yes
+# Created .version with version 0.0.0
+# Created .sley.yaml with default plugins (commit-parser, tag-manager)
 ```
 
-### Version Operations
+### 2. Bump version
 
 ```bash
-# Display current version
-sley show
-# Output: 1.2.3
-
-# Bump versions
-sley bump patch            # 1.2.3 -> 1.2.4
-sley bump minor            # 1.2.4 -> 1.3.0
-sley bump auto             # Smart bump: strips pre-release or bumps patch
-
-# Set version manually
-sley set 2.0.0 --pre beta  # 1.3.0 -> 2.0.0-beta
+sley bump patch            # 0.0.0 -> 0.0.1
+sley bump minor            # 0.0.1 -> 0.1.0
 ```
 
-### Pre-release Versions
+### 3. Create your first tag
 
 ```bash
-# Increment pre-release counter
-sley bump pre              # 2.0.0-beta -> 2.0.0-beta.1
-sley bump pre              # 2.0.0-beta.1 -> 2.0.0-beta.2
-
-# Switch pre-release label
-sley bump pre --label rc   # 2.0.0-beta.2 -> 2.0.0-rc.1
-
-# Release to stable
-sley bump release          # 2.0.0-rc.1 -> 2.0.0
-```
-
-### Git Integration
-
-```bash
-# Create and push git tag
 sley tag create --push
-# Output:
-#   Created tag v2.0.0
-#   Pushed to origin
-
-# Merge versioned changelogs
-sley changelog merge
-# Output:
-#   Merged 3 changelog(s) into CHANGELOG.md
-```
-
-### Validation
-
-```bash
-# Validate setup and configuration
-sley doctor
-# Output:
-#   Configuration Validation:
-#     ✓ [PASS] YAML Syntax
-#     ✓ [PASS] Plugin Configuration
-#
-#   Version File Validation:
-#     ✓ [PASS] .version exists and is valid (2.0.0)
+# Created tag v0.1.0
+# Pushed to origin
 ```
 
 ::: tip
-sley works out-of-the-box with sensible defaults. Create a `.sley.yaml` only when you need to customize behavior.
+Use `sley init --migrate` if your project already has a version in `package.json`, `Cargo.toml`, or similar. sley detects and imports it.
 :::
+
+## Monorepo Track
+
+For projects with `go.work`, `pnpm-workspace.yaml`, `package.json` workspaces, or `Cargo.toml` workspace.
+
+### 1. Initialize workspace
+
+```bash
+sley init --workspace --yes
+# Detected monorepo: go.work
+# Created .sley.yaml (versioning: independent, prefix: {module_path}/v)
+# Created adapters/redis/.version (0.0.0)
+# Created cmd/cli/.version (0.0.0)
+```
+
+### 2. Bump a module
+
+```bash
+sley bump patch --module cli
+#   ✓ cli (cmd/cli/.version): 0.0.0 -> 0.0.1
+```
+
+### 3. Tag all modules
+
+```bash
+sley tag create --all --push
+#   ✓ root: v0.0.0
+#   ✓ adapters/redis: adapters/redis/v0.0.0
+#   ✓ cmd/cli: cmd/cli/v0.0.1
+```
+
+## More Commands
+
+```bash
+sley show                  # Display current version
+sley bump auto             # Smart bump from commit messages
+sley bump pre --label beta # Pre-release: 1.0.0-beta
+sley bump release          # Promote pre-release to stable
+sley doctor                # Validate setup and configuration
+sley discover              # Scan for version sources
+```
 
 ## What's Next?
 
-**Learn all commands:**
-
-- [Usage](/guide/usage) - Detailed guide for all commands
-- [Tutorial](/guide/tutorial) - Step-by-step walkthrough from init to tag
-
-**Work with pre-releases:**
-
-- [Pre-release Versions](/guide/pre-release) - Alpha, beta, and RC workflows
-- [Changelog Generator](/plugins/changelog-generator) - Generate changelogs from commits
-
-**Automate your workflow:**
-
-- [CI/CD Integration](/guide/ci-cd) - Automated versioning in pipelines
-- [Plugin System](/plugins/) - Extend sley with plugins
-
-**Manage multiple modules:**
-
-- [Monorepo Support](/guide/monorepo/) - Multi-module version management
-- [Versioning Models](/guide/monorepo/versioning-models) - Choose the right model
+- [Usage Guide](/guide/usage) - All commands and flags
+- [Monorepo Support](/guide/monorepo/) - Versioning models and workspace config
+- [Pre-release Versions](/guide/pre-release) - Alpha, beta, RC workflows
+- [CI/CD Integration](/guide/ci-cd) - Automate versioning in pipelines

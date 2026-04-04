@@ -1,55 +1,66 @@
 ---
 title: "Troubleshooting: Configuration Issues"
-description: "Solutions for configuration errors including invalid YAML syntax and configuration not being applied"
+description: "Solutions for configuration errors including invalid YAML, workspace.versioning, and {module_path} misconfiguration"
 head:
   - - meta
     - name: keywords
-      content: sley, troubleshooting, configuration, YAML, errors, sley.yaml
+      content: sley, troubleshooting, configuration, YAML, errors, sley.yaml, workspace, module_path
 ---
 
 # {{ $frontmatter.title }}
 
 This page covers common issues related to sley configuration.
 
+## Config warning: `{module_path} used but no workspace detected`
+
+**Cause**: The `tag-manager.prefix` contains `{module_path}` but workspace discovery is not enabled.
+
+**Fix**: Add a `workspace` section to `.sley.yaml`:
+
+```yaml
+workspace:
+  discovery:
+    enabled: true
+
+plugins:
+  tag-manager:
+    enabled: true
+    prefix: "{module_path}/v"
+```
+
+## `versioning: invalid value` error
+
+**Cause**: The `workspace.versioning` field has an unrecognized value.
+
+**Fix**: Use one of the valid values or omit the field entirely:
+
+- `independent` - each module versions separately
+- `coordinated` - all modules share one version (default if omitted)
+
+```yaml
+workspace:
+  versioning: independent
+```
+
 ## `Error: .sley.yaml: invalid configuration`
 
 **Cause**: YAML syntax error or invalid configuration values.
 
-**Solutions**:
+**Fix**: Common YAML mistakes:
 
-```bash
-# Validate YAML syntax
-# Use a YAML linter or:
-cat .sley.yaml
-
-# Common YAML mistakes:
-# - Incorrect indentation (use spaces, not tabs)
-# - Missing colons
-# - Unquoted special characters
-
-# Example of correct format:
-plugins:
-  tag-manager:
-    enabled: true
-    prefix: "v"
-  commit-parser: true
-```
-
-### Common YAML Syntax Errors
-
-**Tabs instead of spaces**:
+**Tabs instead of spaces:**
 
 ```yaml
 # Wrong - uses tabs
 plugins:
 	tag-manager: true
 
-# Correct - uses spaces (2 or 4)
+# Correct - uses spaces
 plugins:
   tag-manager: true
 ```
 
-**Missing colon**:
+**Missing colon:**
 
 ```yaml
 # Wrong
@@ -61,10 +72,10 @@ plugins:
   tag-manager: true
 ```
 
-**Unquoted special characters**:
+**Unquoted special characters:**
 
 ```yaml
-# Wrong - @ needs quotes
+# Wrong
 contributors:
   format: @{username}
 
@@ -73,50 +84,18 @@ contributors:
   format: "@{username}"
 ```
 
-## `Error: Configuration not being applied`
+## Configuration not being applied
 
 **Cause**: Configuration precedence issue or file location problem.
 
-**Configuration Precedence** (highest to lowest):
+**Fix**: Check these in order:
 
-1. Command-line flags
-2. Environment variables
-3. `.sley.yaml` configuration file
-4. Default values
+1. Verify `.sley.yaml` is in the project root: `ls -la .sley.yaml`
+2. Check if `SLEY_PATH` env var is overriding: `env | grep SLEY`
+3. Check if CLI flags are overriding config file settings
+4. Validate the file is readable: `sley doctor`
 
-**Solutions**:
-
-```bash
-# Check if .sley.yaml is in the project root
-ls -la .sley.yaml
-
-# Verify SLEY_PATH is not overriding
-env | grep SLEY
-
-# Check for command-line flags overriding
-# Instead of:
-sley bump patch --path custom/.version
-# Configure in .sley.yaml:
-path: custom/.version
-```
-
-### Debugging Configuration
-
-```bash
-# Check what configuration sley is using
-sley doctor
-
-# Verify file is readable
-cat .sley.yaml
-
-# Check for hidden characters or encoding issues
-file .sley.yaml
-# Should show: ASCII text or UTF-8 Unicode text
-
-# Validate YAML online or with a tool
-# Example with Python:
-python -c "import yaml; yaml.safe_load(open('.sley.yaml'))"
-```
+**Precedence** (highest to lowest): CLI flags > env vars > `.sley.yaml` > defaults.
 
 ## See Also
 

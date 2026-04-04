@@ -177,7 +177,7 @@ sley show --all --format table
 # └──────┴─────────────────────┴──────────┘
 ```
 
-See [Monorepo Support](/guide/monorepo/#command-examples-by-versioning-model) for detailed examples across different versioning models.
+See [Monorepo Workflows](/guide/monorepo/workflows) for detailed examples across different versioning models.
 
 ### Set Version Manually
 
@@ -224,7 +224,7 @@ sley set 1.0.0 --all
 #   ✓ utils (packages/utils/.version): 2.0.0 -> 1.0.0
 ```
 
-See [Monorepo Support](/guide/monorepo/#command-examples-by-versioning-model) for detailed examples across different versioning models.
+See [Monorepo Workflows](/guide/monorepo/workflows) for detailed examples across different versioning models.
 
 ### Bump Version
 
@@ -419,7 +419,7 @@ sley doctor --module web
 #   ✓ web (apps/web/.version): 0.5.0-beta.1
 ```
 
-See [Monorepo Support](/guide/monorepo/#command-examples-by-versioning-model) for detailed examples across different versioning models.
+See [Monorepo Workflows](/guide/monorepo/workflows) for detailed examples across different versioning models.
 
 ## Git Integration
 
@@ -428,7 +428,18 @@ See [Monorepo Support](/guide/monorepo/#command-examples-by-versioning-model) fo
 ```bash
 sley tag create             # Create tag for current version
 sley tag create --push      # Create and push
+sley tag create --all       # Tag all modules (skips duplicates, continues on failure)
+sley tag create --all --push  # Tag and push all modules
 sley tag list               # List version tags
+```
+
+In a workspace with `prefix: '{module_path}/v'`:
+
+```bash
+sley tag create --all
+#   ✓ root: v1.0.0
+#   ✓ adapters/redis: adapters/redis/v0.1.0
+#   i Skipped kong/v0.2.0 - tag already exists
 ```
 
 See [Tag Manager](/plugins/tag-manager) for automatic tagging, GPG signing, and configuration options.
@@ -441,57 +452,65 @@ sley changelog merge        # Merge versioned changelogs into CHANGELOG.md
 
 See [Changelog Generator](/plugins/changelog-generator) for automatic changelog generation from commits.
 
-## Advanced Operations
+## Monorepo Operations
 
-### Rolling Back a Version Change
-
-If you need to undo a version bump:
+### Initialize a Workspace
 
 ```bash
-# Manual method - set back to previous version
+sley init --workspace --yes
+# Detects go.work, pnpm-workspace.yaml, package.json workspaces, or Cargo.toml workspace.
+# Creates root .sley.yaml with versioning: independent and prefix: '{module_path}/v'.
+# Creates .version files in each discovered submodule directory.
+```
+
+### Discover Modules
+
+```bash
+sley discover
+sley discover --format json    # Machine-readable output
+sley discover --format table   # Structured table view
+```
+
+In independent versioning mode, version differences between modules are reported as informational rather than warnings.
+
+### Bump Across Modules
+
+```bash
+sley bump patch --all                    # Bump all modules
+sley bump patch --module core            # Bump one module
+sley bump patch --modules core,api       # Bump named modules
+sley bump patch --pattern "packages/*"   # Bump by glob
+sley bump patch --all --parallel         # Run in parallel
+sley bump patch --all --continue-on-error  # Log errors, keep going
+```
+
+### Tag All Modules
+
+```bash
+sley tag create --all --push
+# Skips modules where the tag already exists (info, not fatal).
+# Continues if an individual module tag fails.
+```
+
+See [Monorepo Support](/guide/monorepo/) for versioning models and workspace configuration.
+
+## Rolling Back a Version Change
+
+```bash
+# Set back to previous version
 sley set 1.2.3
 
-# Git method (if changes were committed)
+# Git revert (if committed)
 git revert HEAD
-# Or reset if not pushed yet
-git reset --hard HEAD^
 
-# If using tag-manager plugin, also delete the tag
+# Delete tag if created
 git tag -d v1.2.4
-# If tag was pushed to remote
 git push origin :refs/tags/v1.2.4
 ```
 
-::: warning
-Automated rollback is not built into sley. Always track version changes in git for easy reversion.
-:::
-
 ## What's Next?
 
-Choose your path based on your needs:
-
-**Ready to automate?**
-
-- [CI/CD Integration](/guide/ci-cd) - Automate version bumps in pipelines
-- [Plugin System](/plugins/) - Enable git tagging, changelogs, and more
-- [Tag Manager](/plugins/tag-manager) - Automatic git tags and releases
-
-**Working with pre-releases?**
-
 - [Pre-release Versions](/guide/pre-release) - Alpha, beta, RC workflows
-- [Changelog Generator](/plugins/changelog-generator) - Generate changelogs from commits
-
-**Syncing versions across files?**
-
-- [Understanding Versioning Models](/guide/monorepo/#understanding-versioning-models) - Choose the right approach for your project
-- [dependency-check Plugin](/plugins/dependency-check) - Keep package.json, Cargo.toml, etc. in sync with `.version`
-
-**Managing multiple modules?**
-
 - [Monorepo Support](/guide/monorepo/) - Multi-module version management
-- [Workspace Configuration](/reference/sley-yaml#workspace-configuration) - Configure module discovery
-
-**Need more details?**
-
+- [CI/CD Integration](/guide/ci-cd) - Automate versioning in pipelines
 - [CLI Reference](/reference/cli) - Complete command and flag reference
-- [Troubleshooting](/guide/troubleshooting/) - Common issues and solutions

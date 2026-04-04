@@ -1,6 +1,6 @@
 ---
 title: "Configuration"
-description: "Configure sley via command-line flags, environment variables, or .sley.yaml file. Learn about configuration precedence and auto-initialization"
+description: "Configure sley via command-line flags, environment variables, or .sley.yaml file"
 head:
   - - meta
     - name: keywords
@@ -9,16 +9,16 @@ head:
 
 # {{ $frontmatter.title }}
 
-sley can be configured through multiple methods, with the following precedence order:
+sley resolves configuration in this order (highest priority first):
 
-1. **Command-line flags** (highest priority)
+1. **Command-line flags**
 2. **Environment variables**
 3. **`.sley.yaml` configuration file**
-4. **Default values** (lowest priority)
+4. **Default values**
 
 ## Quick Start
 
-Most users don't need a configuration file to get started. sley works out-of-the-box with sensible defaults.
+No configuration file is required. sley works out-of-the-box with sensible defaults.
 
 ```bash
 # Initialize with defaults (creates .sley.yaml)
@@ -30,20 +30,82 @@ sley bump patch
 
 ## Auto-initialization
 
-If the `.version` file does not exist when running the CLI:
+When the `.version` file does not exist, sley:
 
-1. It tries to read the latest Git tag via `git describe --tags`
-2. If the tag is a valid semantic version, it is used
-3. Otherwise, the file is initialized to `0.0.0`
+1. Reads the latest Git tag via `git describe --tags`
+2. Uses it if it is a valid semantic version
+3. Otherwise initializes to `0.0.0`
 
-This ensures your project always has a starting point.
-
-**To disable auto-initialization**, use the `--strict` flag:
+Use `--strict` to disable this:
 
 ```bash
 sley bump patch --strict
 # => Error: .version file not found
 ```
+
+## Minimal .sley.yaml
+
+```yaml
+path: .version
+theme: sley
+
+plugins:
+  commit-parser: true
+  tag-manager:
+    enabled: true
+    prefix: "v"
+```
+
+## Monorepo Setup
+
+For monorepos, add a `workspace` section to the root `.sley.yaml`. Optionally add a `.sley.yaml` in each module directory to override plugin settings.
+
+**Root `.sley.yaml`:**
+
+```yaml
+path: .version
+
+workspace:
+  versioning: independent # or "coordinated" (default)
+  discovery:
+    enabled: true
+
+plugins:
+  tag-manager:
+    enabled: true
+    prefix: "{module_path}/v"
+```
+
+**Per-module `.sley.yaml` (optional override):**
+
+```yaml
+plugins:
+  dependency-check:
+    enabled: true
+    auto-sync: true
+    files:
+      - path: package.json
+        field: version
+        format: json
+```
+
+### Versioning Modes
+
+| Mode                    | Behavior                                                                    |
+| ----------------------- | --------------------------------------------------------------------------- |
+| `coordinated` (default) | `sley discover` warns on version mismatches between modules                 |
+| `independent`           | Mismatch warnings suppressed - expected for independently versioned modules |
+
+### Config Merge Rules
+
+When a module has its own `.sley.yaml`, sley merges it with the root config:
+
+| Field                                     | Merge behavior                               |
+| ----------------------------------------- | -------------------------------------------- |
+| Plugin pointer fields (tag-manager, etc.) | Module non-nil value wins                    |
+| `commit-parser`                           | Root wins (workspace-level setting)          |
+| `extensions`, `pre-release-hooks`         | Additive; module entry wins on name conflict |
+| `path`, `theme`, `workspace`              | Root only - module values ignored            |
 
 ## Configuration Methods
 
@@ -59,5 +121,5 @@ sley bump patch --strict
 - [Environment Variables](./env-vars) - Available environment variables and CI detection
 - [CLI Reference](/reference/cli) - Command-line flags and options
 - [Plugin System](/plugins/) - Plugin configuration and execution order
-- [Usage Guide](/guide/usage) - Initialize and configure your project
+- [Monorepo Support](/guide/monorepo/) - Multi-module workspace setup
 - [Troubleshooting](/guide/troubleshooting/) - Common configuration issues

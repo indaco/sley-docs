@@ -334,6 +334,45 @@ contributors:
 - [@johndoe](https://github.com/johndoe)
 ```
 
+## Multi-Module Output Paths
+
+When running `sley bump --all` or `sley bump --module <name>` in a workspace, the changelog generator scopes output paths per module.
+
+**Versioned mode** writes to a subdirectory named after the module path:
+
+```
+.changes/<module-name>/v0.1.0.md
+.changes/<nested>/<module>/v2.3.0.md
+```
+
+**Unified mode** writes to a single root `CHANGELOG.md`. Each module's version heading includes the module name:
+
+```markdown
+## <module-a> - v0.1.0 - 2026-04-03
+
+### Features
+
+...
+
+## <module-b> - v0.2.0 - 2026-04-03
+
+### Bug Fixes
+
+...
+```
+
+The root module also gets a named heading (using the project directory name), so all entries are consistently formatted.
+
+**Root module** versioned files still go to `.changes/vX.Y.Z.md`. The `sley changelog merge` command recursively collects files from module subdirectories and adds module-prefixed headings automatically.
+
+### Commit Scoping
+
+In multi-module mode, changelogs only include commits that touch files within the module's directory. Tag resolution also scopes to the module's tag prefix (e.g., `<module>/v*`), so each module's changelog reflects only its own changes.
+
+::: tip Per-module config
+Each module's `.sley.yaml` is merged over the root config before the plugin runs. Use this to set a different `mode` or `changes-dir` per module.
+:::
+
 ## Working with Changelogs
 
 ### Merging Versioned Files

@@ -1,32 +1,59 @@
 ---
 title: "Troubleshooting: Git & Tag Issues"
-description: "Solutions for git and tag errors including tag already exists, not a git repository, push failures, and GPG signing issues"
+description: "Solutions for git and tag errors including tag already exists, not a git repository, push failures, GPG signing, and tag create --all issues"
 head:
   - - meta
     - name: keywords
-      content: sley, troubleshooting, git, tags, errors, tag manager, GPG signing, push
+      content: sley, troubleshooting, git, tags, errors, tag manager, GPG signing, push, tag create --all
 ---
 
 # {{ $frontmatter.title }}
 
 This page covers common issues related to git operations and tag management.
 
+## `tag create --all` stops after the first module
+
+**Cause**: Historical bug. Fixed in current release.
+
+**Fix**: Upgrade to the latest version of sley.
+
+## Duplicate tag skipped during `tag create --all`
+
+**Behavior**: When a tag already exists for a module, sley logs an info message and continues to the next module. This is not a fatal error.
+
+**Fix**: No action needed. To re-create a tag, delete it first:
+
+```bash
+git tag -d adapters/redis/v0.1.0
+# If pushed to remote:
+git push origin :refs/tags/adapters/redis/v0.1.0
+```
+
+## Partial failure: some modules tagged, some not
+
+**Cause**: One or more modules failed during `tag create --all`. Sley reports a summary error: `X of Y module(s) failed tag creation`.
+
+**Fix**: Re-run `sley tag create --all`. Existing tags are skipped automatically; only the missing ones are created.
+
 ## `Error: tag v1.2.3 already exists`
 
 **Cause**: The `tag-manager` plugin prevents creating duplicate tags.
 
-**Solutions**:
+**Fix**:
 
 ```bash
-# Option 1: Delete the existing tag (if it was created by mistake)
+# Delete the existing tag if created by mistake
 git tag -d v1.2.3
 # If pushed to remote:
 git push origin :refs/tags/v1.2.3
 
-# Option 2: Bump to a different version
-sley bump patch  # Will create v1.2.4 instead
+# Or bump to a new version
+sley bump patch  # Creates v1.2.4 instead
+```
 
-# Option 3: Disable auto-tagging temporarily
+To disable auto-tagging:
+
+```yaml
 plugins:
   tag-manager:
     auto-create: false
@@ -34,17 +61,19 @@ plugins:
 
 ## `Error: failed to create tag: not a git repository`
 
-**Cause**: Trying to use tag-manager plugin outside a git repository.
+**Cause**: Using tag-manager outside a git repository.
 
-**Solutions**:
+**Fix**:
 
 ```bash
-# Initialize git repository
 git init
 git add .
 git commit -m "Initial commit"
+```
 
-# Or disable tag-manager
+Or disable the plugin:
+
+```yaml
 plugins:
   tag-manager:
     enabled: false
@@ -54,74 +83,64 @@ plugins:
 
 **Cause**: Tag manager is configured with `push: true` but no remote exists.
 
-**Solutions**:
+**Fix**:
 
 ```bash
-# Option 1: Add a git remote
+# Add a remote
 git remote add origin https://github.com/username/repo.git
 
-# Option 2: Disable auto-push
+# Or disable auto-push
 plugins:
   tag-manager:
     push: false
-
-# Option 3: Push manually later
-sley tag create  # Create without pushing
-git push origin v1.2.3  # Push when ready
 ```
 
 ## `Error: gpg: signing failed: No secret key`
 
-**Cause**: Tag manager configured with `sign: true` but GPG key is not set up.
+**Cause**: Tag manager configured with `sign: true` but no GPG key is set up.
 
-**Solutions**:
+**Fix**:
 
 ```bash
-# Option 1: Configure GPG signing key
+# Generate a key and configure git
+gpg --full-generate-key
 git config user.signingkey YOUR_KEY_ID
+```
 
-# Option 2: Disable GPG signing
+Or disable signing:
+
+```yaml
 plugins:
   tag-manager:
     sign: false
-
-# Option 3: Generate a GPG key
-gpg --full-generate-key
-# Then configure git to use it
-git config user.signingkey YOUR_KEY_ID
 ```
 
 ## `Error: authentication failed` (when pushing tags)
 
 **Cause**: Git credentials not configured or expired.
 
-**Solutions**:
+**Fix**:
 
 ```bash
-# Option 1: Use SSH instead of HTTPS
+# Use SSH instead of HTTPS
 git remote set-url origin git@github.com:username/repo.git
 
-# Option 2: Configure credential helper
-git config --global credential.helper store
-# Then authenticate once
-
-# Option 3: Use personal access token (GitHub)
+# Or use a personal access token
 git remote set-url origin https://TOKEN@github.com/username/repo.git
 ```
 
 ## `Error: tag message required but not provided`
 
-**Cause**: Tag manager configured with `annotated: true` but no message template.
+**Cause**: Tag manager configured with `annotate: true` but no `message-template` set.
 
-**Solutions**:
+**Fix**:
 
 ```yaml
-# In .sley.yaml, configure tag message:
 plugins:
   tag-manager:
     enabled: true
-    annotated: true
-    message: "Release {version}"
+    annotate: true
+    message-template: "Release {version}"
 ```
 
 ## See Also

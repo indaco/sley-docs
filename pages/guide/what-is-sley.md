@@ -1,6 +1,6 @@
 ---
 title: "What is sley?"
-description: "Language-agnostic semantic versioning tool with a simple .version file. Learn why sley was created and how it solves version management challenges"
+description: "A language-agnostic SemVer 2.0.0 CLI that manages versions through a plain-text .version file, with built-in plugins for git tagging, changelog generation, and release validation."
 head:
   - - meta
     - name: keywords
@@ -9,193 +9,64 @@ head:
 
 # {{ $frontmatter.title }}
 
-A command-line tool for managing [SemVer 2.0.0](https://semver.org/) versions using a simple `.version` file. Works with any language or stack, integrates with CI/CD pipelines, and extends via built-in plugins for git tagging, changelog generation, and version validation.
+`sley` is a CLI for managing [SemVer 2.0.0](https://semver.org/) versions using a plain-text `.version` file. It provides 10 commands (`init`, `discover`, `show`, `set`, `bump`, `pre`, `doctor`, `tag`, `changelog`, `extension`) and 8 built-in plugins for git tagging, changelog generation, commit parsing, version validation, dependency checking, release gating, and audit logging. Because it has no language-specific runtime dependencies, it works with any stack.
 
 > _sley - named for the weaving tool that arranges threads in precise order._
 
-## Features by Category
+## Key Concepts
 
-### Core Version Management
+**The `.version` file** is a plain-text file containing a single SemVer string (`1.2.3`). It is the single source of truth for your project version. You read it at build time, inject it into binaries, or use it as input to other tools - sley just keeps it accurate.
 
-- **Lightweight `.version` file** - Single source of truth, SemVer 2.0.0 compliant
-- **Intuitive commands** - `init`, `bump`, `set`, `show`, `validate` for complete version control
-- **Pre-release support** - Auto-increment for alpha, beta, rc with `bump pre` command
-- **Build metadata** - Attach and preserve metadata (`+build.123`)
-- **Smart bumping** - `bump auto` analyzes commits to determine version increment
+**Plugins** extend the version lifecycle. Eight are built in, configured in `.sley.yaml`:
 
-### Automation & Integration
+- `commit-parser` - analyzes conventional commits to determine the next bump
+- `tag-manager` - creates and pushes git tags after version changes
+- `changelog-generator` - generates changelogs from git commits
+- `changelog-parser` - infers bump type from changelog entries
+- `version-validator` - enforces versioning policies and constraints
+- `release-gate` - pre-bump validation (clean worktree, branch checks)
+- `dependency-check` - syncs version to manifest files (package.json, Cargo.toml, etc.)
+- `audit-log` - records version history with timestamps and metadata
 
-- **Built-in plugins** - Git tagging, changelog generation, version validation, commit parsing
-- **Extension system** - Hook external scripts into version lifecycle events
-- **CI/CD ready** - Auto-detects CI environments, strict mode, non-interactive operation
-- **Multiple output formats** - Text, JSON, table for scripts and pipelines
-- **Configurable** - Via flags, environment variables, or `.sley.yaml`
+**Configuration** is resolved in priority order: CLI flags > environment variables > `.sley.yaml` > built-in defaults.
 
-### Multi-Module Support
+**Workspace support** lets you manage multiple `.version` files in one repository. There are three versioning models:
 
-- **Monorepo/workspace support** - Manage multiple `.version` files simultaneously
-- **Three versioning models** - Single-root, coordinated versioning, independent versioning
-- **Interactive selection** - Choose which modules to operate on
-- **Parallel execution** - Bump multiple modules concurrently
-- **Module discovery** - Auto-detect modules with `.version` files
+- **Single-root** - one `.version` file; manifest files (`package.json`, `Cargo.toml`, etc.) sync to it via the `dependency-check` plugin.
+- **Coordinated** - multiple `.version` files that all track the same version, bumped together.
+- **Independent** - multiple `.version` files with their own versions, bumped selectively or in batch.
 
-### File Synchronization
+Run `sley discover` to detect which model fits your project structure.
 
-- **Manifest syncing** - Keep package.json, Cargo.toml, etc. in sync with `.version`
-- **Cross-file coordination** - Sync multiple `.version` files in coordinated mode
-- **Auto-sync on bump** - Automatic propagation with `dependency-check` plugin
-- **Format support** - JSON, YAML, TOML, raw text, regex patterns
+## When to Use sley / When Not To
 
-## Why .version?
+**Use sley when:**
 
-`sley` was born from patterns that kept repeating across projects:
+- You want a single, stack-agnostic file that every tool in your pipeline can read without a language runtime.
+- You need to keep manifest files (`package.json`, `Cargo.toml`, `pyproject.toml`) in sync with one authoritative version.
+- You want commit-driven automatic version bumps (`bump auto`) in CI without custom scripting.
+- You manage a monorepo with components that need independent or coordinated versioning.
 
-**It started with Go**: Using `//go:embed .version` for version info - no build flags, no magic. This became the default approach for every Go project.
+**Do not expect sley to:**
 
-**Then frontend projects**: The same pattern worked for SvelteKit and other frontend stacks with a Vite plugin to read from `.version`. One file, same workflow, any stack.
+- Replace git tags - use the `tag-manager` plugin to keep them in sync, but sley does not own your tag history.
+- Publish or distribute packages - it manages the version string only.
+- Replace a dedicated changelog tool if you need heavy customization - the `changelog-generator` plugin covers standard conventional-commit workflows.
 
-**Then multi-stack projects**: With a SvelteKit frontend, Go gateway, and Python/Rust services in one repo, the need became clear: version each component individually, but also bump them all at once when needed.
-
-`sley` solves all of these. The plugin system (audit-log, version-validator, release-gate) came later to support organizational requirements like audit trails and policy enforcement.
-
-## What It Is
-
-- A **single source of truth** for your project version
-- **Language-agnostic** - works with Go, Python, Node, Rust, or any stack
-- **CI/CD friendly** - inject into Docker labels, GitHub Actions, release scripts
-- **Human-readable** - just a plain text file containing `1.2.3`
-- **Predictable** - no magic, no hidden state, version is what you set
-
-## What It Is NOT
-
-- **Not a replacement for git tags** - use the `tag-manager` plugin to sync both
-- **Not a package manager** - it doesn't publish or distribute anything
-- **Not a standalone changelog tool** - changelog generation is available via the built-in `changelog-generator` plugin
-- **Not a build system** - it just manages the version string
-
-The `.version` file complements your existing tools. Pair it with `git tag` for releases, inject it into binaries at build time, or sync it across `package.json`, `Cargo.toml`, and other manifest files using the [`dependency-check` plugin](/plugins/dependency-check).
-
-## Common Use Cases
-
-### Use Case 1: Single-Language Project
-
-**Scenario:** Node.js application with package.json
-
-**Setup:**
-
-```bash
-sley init
-```
-
-**Configuration:**
-
-```yaml
-# .sley.yaml
-path: .version
-plugins:
-  dependency-check:
-    enabled: true
-    auto-sync: true
-    files:
-      - path: package.json
-        field: version
-        format: json
-```
-
-**Benefit:** `.version` as single source, package.json syncs automatically.
-
-### Use Case 2: Multi-Language Monorepo
-
-**Scenario:** Go backend, SvelteKit frontend, shared library
-
-**Setup:**
-
-```bash
-sley discover  # Auto-detect structure
-```
-
-**Result:** Coordinated versioning with one version for all components.
-
-**Benefit:** Bump once, all components stay synchronized.
-
-### Use Case 3: Microservices Architecture
-
-**Scenario:** Independent services with different release cycles
-
-**Setup:**
-
-```bash
-sley init --workspace
-```
-
-**Configuration:**
-
-```yaml
-# .sley.yaml
-workspace:
-  discovery:
-    enabled: true
-    recursive: true
-```
-
-**Benefit:** Version each service independently, bump all or selectively.
-
-### Use Case 4: CI/CD Automation
-
-**Scenario:** Automate version bumps in GitHub Actions
-
-**Setup:**
-
-```yaml
-# .github/workflows/version-bump.yml
-- name: Bump version
-  run: sley bump auto --strict
-```
-
-**Benefit:** Automatic versioning based on conventional commits, no manual intervention.
-
-### Use Case 5: Docker Image Versioning
-
-**Scenario:** Tag Docker images with version from `.version`
-
-**Setup:**
-
-```bash
-docker build --build-arg VERSION=$(sley show) -t myapp:$(sley show) .
-```
-
-**Benefit:** Consistent versioning across code and Docker images.
-
-## Versioning Model Selection
-
-::: tip Choosing Your Versioning Model
-`sley` supports three versioning models:
-
-- **Single-root**: One `.version` file, sync manifest files with `dependency-check`
-- **Coordinated versioning**: Multiple `.version` files that all sync to root (one version everywhere)
-- **Independent versioning**: Multiple `.version` files with independent versions (workspace mode)
-
-Run `sley discover` to detect your project structure and choose the right model. See [Understanding Versioning Models](/guide/monorepo/versioning-models) for detailed guidance.
+::: tip Choosing a versioning model
+If you are unsure which model fits your project, run `sley discover` and review the output. See [Understanding Versioning Models](/guide/monorepo/versioning-models) for a full comparison.
 :::
 
 ## What's Next?
 
-Choose your path based on your needs:
+**Getting started:**
 
-**Getting started?**
+- [Installation](/guide/installation)
+- [Quick Start](/guide/quick-start)
+- [Usage Guide](/guide/usage)
 
-- [Installation](/guide/installation) - All installation methods
-- [Quick Start](/guide/quick-start) - Get up and running fast
-- [Usage Guide](/guide/usage) - Learn all commands and features
+**Going further:**
 
-**Setting up automation?**
-
-- [CI/CD Integration](/guide/ci-cd) - Automate version bumps
-- [Plugin System](/plugins/) - Extend sley with built-in plugins
-- [Tag Manager](/plugins/tag-manager) - Automatic git tags
-
-**Advanced features?**
-
-- [Pre-release Versions](/guide/pre-release) - Alpha, beta, RC workflows
-- [Monorepo Support](/guide/monorepo/) - Multi-module version management
-- [Dependency Check](/plugins/dependency-check) - Sync versions across files
+- [Plugin System](/plugins/)
+- [Monorepo Support](/guide/monorepo/)
+- [CI/CD Integration](/guide/ci-cd)
