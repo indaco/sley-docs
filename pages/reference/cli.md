@@ -541,7 +541,7 @@ sley tag create [options]
 | Option                | Description                                          |
 | --------------------- | ---------------------------------------------------- |
 | `--push`              | Push the tag to remote after creation                |
-| `--message`, `-m`     | Override the tag message (for annotated/signed tags) |
+| `--message`           | Override the tag message (for annotated/signed tags) |
 | `--all`, `-a`         | Create tags for all discovered modules               |
 | `--module`, `-m`      | Create tag for specific module by name               |
 | `--modules`           | Create tags for multiple modules (comma-separated)   |
@@ -578,9 +578,11 @@ List existing version tags (aliases: `l`, `ls`).
 sley tag list [options]
 ```
 
-| Option          | Description                    |
-| --------------- | ------------------------------ |
-| `--limit`, `-n` | Limit the number of tags shown |
+| Option           | Description                           |
+| ---------------- | ------------------------------------- |
+| `--limit`, `-n`  | Limit the number of tags shown        |
+| `--all`, `-a`    | List tags for all discovered modules  |
+| `--module`, `-m` | List tags for specific module by name |
 
 Tags are sorted by semantic version in descending order (newest first).
 
@@ -589,8 +591,13 @@ Tags are sorted by semantic version in descending order (newest first).
 Push a tag to remote (alias: `p`).
 
 ```bash
-sley tag push [tag-name]
+sley tag push [tag-name] [options]
 ```
+
+| Option           | Description                          |
+| ---------------- | ------------------------------------ |
+| `--all`, `-a`    | Push tags for all discovered modules |
+| `--module`, `-m` | Push tag for specific module by name |
 
 If no tag name is provided, pushes the tag corresponding to the current version in .version file.
 
