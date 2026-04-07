@@ -188,6 +188,10 @@ Follows the [Keep a Changelog](https://keepachangelog.com) specification.
 | `docs`, `test`, `chore`, `ci`, `build` | (skipped)                |
 | Any type with `!` or `BREAKING CHANGE` | Breaking Changes         |
 
+::: info
+The "Breaking Changes" section is a sley extension. The Keep a Changelog specification does not define this section, but most changelog tools use a similar approach.
+:::
+
 #### Format: `github`
 
 Follows the GitHub release style with "What's Changed" section, inline contributor attribution (`by @username`), and PR references (`in #123`). Breaking changes appear in a separate section at the top.
@@ -345,7 +349,7 @@ When running `sley bump --all` or `sley bump --module <name>` in a workspace, th
 .changes/<nested>/<module>/v2.3.0.md
 ```
 
-**Unified mode** writes to a single root `CHANGELOG.md`. Each module's version heading includes the module name:
+**Unified mode** writes to a single root `CHANGELOG.md` when using coordinated versioning. Each module's version heading includes the module name:
 
 ```markdown
 ## <module-a> - v0.1.0 - 2026-04-03
@@ -362,6 +366,8 @@ When running `sley bump --all` or `sley bump --module <name>` in a workspace, th
 ```
 
 The root module also gets a named heading (using the project directory name), so all entries are consistently formatted.
+
+When `workspace.versioning: "independent"` is set, each module writes to its own `{modulePath}/CHANGELOG.md` instead of the shared root file. This is consistent with conventions in npm/pnpm workspaces, Cargo workspaces, and Go multi-module repos where each package owns its changelog.
 
 **Root module** versioned files still go to `.changes/vX.Y.Z.md`. The `sley changelog merge` command recursively collects files from module subdirectories and adds module-prefixed headings automatically.
 
@@ -382,6 +388,10 @@ sley changelog merge
 sley changelog merge --changes-dir .changes --output CHANGELOG.md
 sley changelog merge --header-template .changes/header.md
 ```
+
+::: warning
+The merge command rebuilds CHANGELOG.md from scratch using the versioned files in `.changes/`. Any manual edits to CHANGELOG.md will be overwritten. The same applies when using `merge-after: "immediate"`.
+:::
 
 ### PR Links in Changelog
 
