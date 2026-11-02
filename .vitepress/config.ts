@@ -2,10 +2,10 @@ import { defineConfig } from 'vitepress';
 import {
   getVersionFromPackageJson,
   injectNPMPackageVersion,
-} from '../src/lib/plugins/injectVersion';
+} from '../src/lib/plugins/injectVersion.ts';
 
-import { nav } from './nav';
-import { sidebar } from './sidebar';
+import { nav } from './nav.ts';
+import { sidebar } from './sidebar.ts';
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
