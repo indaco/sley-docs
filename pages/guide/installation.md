@@ -21,8 +21,8 @@ Choose the method that best fits your workflow:
 | If you...                           | Use...                | Requires                                             |
 | ----------------------------------- | --------------------- | ---------------------------------------------------- |
 | Use macOS/Linux with Homebrew       | Homebrew              | [Homebrew](https://brew.sh/)                         |
-| Want latest version system-wide     | `go install` (global) | [Go](https://go.dev/) 1.25+                          |
-| Need local project-specific install | `go install` (tool)   | [Go](https://go.dev/) 1.25+                          |
+| Want latest version system-wide     | `go install` (global) | [Go](https://go.dev/) 1.26.9+                        |
+| Need local project-specific install | `go install` (tool)   | [Go](https://go.dev/) 1.26.9+                        |
 | Use asdf version manager            | asdf plugin           | [asdf](https://asdf-vm.com/)                         |
 | Don't have Go installed             | Prebuilt binary       | -                                                    |
 | Want to contribute or customize     | Build from source     | [Go](https://go.dev/), [just](https://just.systems/) |
@@ -160,7 +160,7 @@ xattr -d com.apple.quarantine /usr/local/bin/sley
 **Solution:** Verify Go installation and clean module cache:
 
 ```bash
-go version  # Should be 1.25+
+go version  # Should be 1.26.9+
 go clean -modcache
 go install github.com/indaco/sley/cmd/sley@latest
 ```
