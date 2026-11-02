@@ -211,7 +211,7 @@ jobs:
 ```yaml
 version:bump:
   stage: deploy
-  image: golang:1.25
+  image: golang:1.26
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
   script:
