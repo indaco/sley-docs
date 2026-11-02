@@ -1,5 +1,5 @@
 import { DefaultTheme } from 'vitepress';
-import { getVersionFromPackageJson } from '../src/lib/plugins/injectVersion';
+import { getVersionFromPackageJson } from '../src/lib/plugins/injectVersion.ts';
 
 const pkgVersion = getVersionFromPackageJson();
 
